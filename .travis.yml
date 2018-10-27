@@ -1,1 +1,8 @@
 language: java
+
+deploy:
+  provider: heroku
+  on:
+    branch: feature/5
+    jdk: 1.8
+  api_key: $HEROKU_API_KEY
