@@ -5,7 +5,7 @@ import client from 'rest';
 class App extends React.Component {
 
     componentDidMount() {
-        client({method: 'GET', path: '/hi', parameters: { name: "whoever u are" }}).done(response => {
+        client({method: 'GET', path: '/hi', params: { name: "whoever u are" }}).done(response => {
             this.setState({message: response.message});
         });
     }
