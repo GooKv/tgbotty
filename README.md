@@ -6,4 +6,4 @@
 
 ## Deployment
 Done with travis, site:
-https://tgbotty.herokuapp.com/hi
+https://tgbotty.herokuapp.com/
