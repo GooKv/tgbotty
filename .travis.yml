@@ -3,5 +3,5 @@ language: java
 deploy:
   provider: heroku
   on:
-    branch: feature/5
+    branch: master
   api_key: $HEROKU_API_KEY
