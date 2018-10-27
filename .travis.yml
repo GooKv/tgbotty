@@ -1,1 +1,7 @@
 language: java
+
+deploy:
+  provider: heroku
+  on:
+    branch: master
+  api_key: $HEROKU_API_KEY
