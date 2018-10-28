@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Layout, Row, Col } from 'antd';
+
+const { Header, Footer, Content } = Layout;
 
 class App extends Component {
   state = {
@@ -25,12 +26,19 @@ class App extends Component {
 
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>{this.state.message}</p>
-        </header>
-      </div>
+      <Layout style={{ height: '100vh' }}>
+        <Header>
+          <h2 style={{ color: 'white' }}>tgbotty</h2>
+        </Header>
+        <Content>
+          <Row>
+            <Col>
+              {this.state.message}
+            </Col>
+          </Row>
+        </Content>
+        <Footer>Footer</Footer>
+      </Layout>
     );
   }
 }
