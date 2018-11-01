@@ -6,6 +6,12 @@ public class ChatViewDto {
     private String displayName;
     private MessageDto lastMessage;
 
+    public ChatViewDto(Long id, String displayName, MessageDto lastMessage) {
+        this.id = id;
+        this.displayName = displayName;
+        this.lastMessage = lastMessage;
+    }
+
     public ChatViewDto(Long id, String displayName) {
         this.id = id;
         this.displayName = displayName;

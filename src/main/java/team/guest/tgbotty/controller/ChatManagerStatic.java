@@ -68,7 +68,14 @@ public class ChatManagerStatic implements ChatManager {
     public List<ChatViewDto> getChatList() {
         return chats.entrySet()
                 .stream()
-                .map(entry -> new ChatViewDto(entry.getKey(), entry.getValue().getId().toString()))
+                .map(entry -> new ChatViewDto(entry.getKey(), entry.getValue().getId().toString(), new MessageDto("dedushka",
+                        "CUSTOMER", "alala",
+                        155L,
+                        "12" +
+                                ".10" +
+                                ".2018 " +
+                                "12:00" +
+                                ":49")))
                 .collect(Collectors.toList());
     }
 

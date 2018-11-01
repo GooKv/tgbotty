@@ -1,6 +1,7 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
-import { Layout, Icon, message, List } from "antd";
+import { Link, withRouter } from "react-router-dom";
+import { Layout, Icon, message, List, Tabs } from "antd";
+import { Avatar } from "./Avatar";
 
 const { Sider } = Layout;
 
@@ -13,15 +14,18 @@ const getChats = () =>
       throw error;
     });
 
-const menuItemStyle = {
-  width: "100%",
-  height: "30px",
-  background: "yellowgreen",
-  margin: "10px 0px"
-};
+const getRequests = () =>
+  fetch("/view/request/")
+    .then(response => response.json())
+    .catch(error => {
+      console.error(error);
+      message.error("Не удалось получить список запросов");
+      throw error;
+    });
 
 const defaultState = {
-  chatList: []
+  chatList: [],
+  requestList: []
 };
 
 class Menu extends Component {
@@ -30,10 +34,12 @@ class Menu extends Component {
   componentDidMount() {
     const getChatPeriodiocally = () => {
       this.getChats();
+      this.getRequests();
       this.getChatRequestTimerId = setTimeout(getChatPeriodiocally, 1000);
     };
 
     this.getChats();
+    this.getRequests();
 
     this.getChatRequestTimerId = setTimeout(getChatPeriodiocally, 1000);
   }
@@ -49,8 +55,22 @@ class Menu extends Component {
       })
       .catch(() => this.setState(defaultState));
 
+  getRequests = () =>
+    getRequests()
+      .then(requestList => {
+        this.setState({ requestList });
+      })
+      .catch(() => this.setState(defaultState));
+
+  onRequestClick = requestId => {
+    const { history } = this.props;
+    fetch(`/view/request/${requestId}`)
+      .then(response => response.json())
+      .then(chatId => history.push(`/chat/${chatId}`));
+  };
+
   render() {
-    const { chatList } = this.state;
+    const { chatList, requestList } = this.state;
 
     return (
       <Sider
@@ -60,20 +80,67 @@ class Menu extends Component {
         collapsible
         trigger={<Icon type="menu-fold" theme="outlined" />}
       >
-        <List
-          itemLayout="horizontal"
-          dataSource={chatList}
-          renderItem={chat => (
-            <Link to={`/chat/${chat.id}`} key={chat.id}>
-              <List.Item>
-                <div style={menuItemStyle}>{chat.displayName}</div>
-              </List.Item>
-            </Link>
-          )}
-        />
+        <Tabs defaultActiveKey="1">
+          <Tabs.TabPane tab="Список чатов" key="1">
+            <div className="menu-content">
+              <List
+                itemLayout="horizontal"
+                dataSource={chatList}
+                renderItem={chat => (
+                  <Link
+                    to={`/chat/${chat.id}`}
+                    key={chat.id}
+                    className="menu-item-wrapper"
+                  >
+                    <List.Item>
+                      <div className="menu-item">
+                        <div className="message-avatar">
+                          <Avatar user={chat.lastMessage} />
+                        </div>
+                        <div className="message-content">
+                          <div className="message-sender">
+                            {chat.lastMessage.sender || ""}
+                          </div>
+                          <div className="message-text">
+                            {chat.lastMessage.message}
+                          </div>
+                        </div>
+                      </div>
+                    </List.Item>
+                  </Link>
+                )}
+              />
+            </div>
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="Список заявок" key="2">
+            <div className="menu-content">
+              <List
+                itemLayout="horizontal"
+                dataSource={requestList}
+                renderItem={request => (
+                  <List.Item
+                    key={request.requestId}
+                    onClick={() => this.onRequestClick(request.requestId)}
+                  >
+                    <div className="menu-item">
+                      <div className="message-content">
+                        <div className="message-sender">
+                          {request.requestNumber}
+                        </div>
+                        <div className="message-text">{request.text}</div>
+                      </div>
+                    </div>
+                  </List.Item>
+                )}
+              />
+            </div>
+          </Tabs.TabPane>
+        </Tabs>
       </Sider>
     );
   }
 }
 
-export { Menu };
+const wrappedComponent = withRouter(Menu);
+
+export { wrappedComponent as Menu };
