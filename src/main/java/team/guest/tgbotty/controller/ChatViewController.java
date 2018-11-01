@@ -11,9 +11,7 @@ import team.guest.tgbotty.dao.ChatRepository;
 import team.guest.tgbotty.dto.ChatDto;
 import team.guest.tgbotty.dto.ChatViewDto;
 import team.guest.tgbotty.dto.MessageDto;
-import team.guest.tgbotty.entity.Chat;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -72,18 +70,20 @@ public class ChatViewController {
     @RequestMapping("view")
     @ResponseBody
     public List<ChatViewDto> getChatList() {
-        List<ChatViewDto> chatViewDtoList = new ArrayList<>();
+       /* List<ChatViewDto> chatViewDtoList = new ArrayList<>();
         chatRepository.findAll().forEach(chat -> chatViewDtoList.add(chatConverter.convert(chat)));
-        return chatViewDtoList;
+        return chatViewDtoList;*/
+       return chats.entrySet().stream().map(entry -> new ChatViewDto(entry.getKey(), entry.getValue().getId().toString())).collect(Collectors.toList());
     }
 
     @RequestMapping("view/{id}")
     @ResponseBody
     public ChatDto getChatInfo(@PathVariable("id") long id) {
-        Chat chat = chatRepository.findByChatId(id).orElseThrow(() -> new NoChatFoundException(id));
+        /*Chat chat = chatRepository.findByChatId(id).orElseThrow(() -> new NoChatFoundException(id));
         return new ChatDto(chat.getChatId(),
                            chat.getActiveProcessId(),
-                           chat.getChatMessages().stream().map(chatConverter::convert).collect(Collectors.toList()));
+                           chat.getChatMessages().stream().map(chatConverter::convert).collect(Collectors.toList()));*/
+        return chats.get(id);
     }
 
 

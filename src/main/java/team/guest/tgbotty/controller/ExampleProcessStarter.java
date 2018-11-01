@@ -36,8 +36,7 @@ public class ExampleProcessStarter {
     }
 
     private void saveProcessIdInChat(Long chatId, String processId) {
-        Chat chat = chatRepository.findByChatId(chatId)
-                .orElse(chatRepository.save(new Chat(chatId)));
+        Chat chat = chatRepository.findByChatId(chatId).orElse(chatRepository.save(new Chat(chatId)));
         chat.setActiveProcessId(processId);
         List<String> processList = chat.getProcessList();
         processList.add(processId);

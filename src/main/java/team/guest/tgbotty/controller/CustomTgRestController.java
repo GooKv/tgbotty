@@ -92,7 +92,7 @@ public class CustomTgRestController {
     }
 
     private void saveChatInfo(long chatId, Update update) {
-        Chat chat = chatRepository.findById(chatId).orElseGet(() -> chatRepository.save(new Chat(chatId)));
+        Chat chat = chatRepository.findByChatId(chatId).orElseGet(() -> chatRepository.save(new Chat(chatId)));
         List<ChatMessage> chatMessages = chat.getChatMessages();
         Message updateMessage = update.getMessage();
         Timestamp timestamp = new Timestamp(updateMessage.getDate() * 1000L);
