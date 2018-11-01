@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions
         xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns:activiti="http://activiti.org/bpmn"
         targetNamespace="Examples">
 
@@ -10,6 +11,24 @@
         <serviceTask id="repeat-message" name="Repeat message" activiti:expression="#{bot.sendSimpleMessage(chatId, initialUpdate.getMessage().getText())}"/>
         <sequenceFlow id="sequence-flow-2" sourceRef="repeat-message" targetRef="endEvent"/>
         <endEvent id="endEvent" name="endEvent"/>
+    </process>
+
+    <process id="help" name="help" isExecutable="true">
+        <startEvent id="start"/>
+        <sequenceFlow sourceRef="start" targetRef="setupOptions"/>
+        <serviceTask id="setupOptions" name="" activiti:expression="#{bot.sendOptions(chatId)}"/>
+        <sequenceFlow sourceRef="setupOptions" targetRef="selectOption"/>
+        <userTask id="selectOption" name="" activiti:assignee="bot" />
+        <exclusiveGateway id="optionSelected"/>
+        <sequenceFlow sourceRef="optionSelected" targetRef="ineedawoman">
+            <conditionExpression xsi:type="tFormalExpression">#{helpAnswer == "ineedawoman"}</conditionExpression>
+        </sequenceFlow>
+        <serviceTask id="ineedawoman" activiti:expression="#{bot.sendSimpleMessage(chatId, 'Yes u do')}"/>
+        <sequenceFlow sourceRef="optionSelected" targetRef="icantcode">
+            <conditionExpression xsi:type="tFormalExpression">#{helpAnswer == "icantcode"}</conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow sourceRef="optionSelected" targetRef="setupOptions"/>
+        <serviceTask id="icantcode" activiti:expression="#{bot.sendSimpleMessage(chatId, 'Yes u cant')}"/>
     </process>
 
 </definitions>
