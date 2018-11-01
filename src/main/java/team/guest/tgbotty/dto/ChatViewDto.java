@@ -4,6 +4,7 @@ public class ChatViewDto {
 
     private Long id;
     private String displayName;
+    private MessageDto lastMessage;
 
     public ChatViewDto(Long id, String displayName) {
         this.id = id;
@@ -27,5 +28,13 @@ public class ChatViewDto {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public void setLastMessage(MessageDto lastMessage) {
+        this.lastMessage = lastMessage;
+    }
+
+    public MessageDto getLastMessage() {
+        return lastMessage;
     }
 }
