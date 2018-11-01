@@ -5,9 +5,10 @@ const { Header } = Layout;
 
 class ChatHeader extends Component {
   render() {
+    const { header } = this.props;
     return (
       <Header className="main-header">
-        <h2>Header</h2>
+        <h2>{header}</h2>
       </Header>
     );
   }

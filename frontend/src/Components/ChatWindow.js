@@ -1,35 +1,20 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { withRouter } from "react-router-dom";
-import { Layout } from "antd";
-
-const { Content } = Layout;
-
-const Message = ({ message }) => (
-  <div
-    style={{
-      height: "100px",
-      background: "black",
-      margin: "10px 0",
-      color: "white"
-    }}
-  >
-    {message}
-  </div>
-);
+import { MessageList } from "./MessageList";
+import { ChatHeader } from "./ChatHeader";
 
 const getChatMessages = chatId =>
-  fetch(`/view/${chatId}`).then(response => response.json()).catch(console.error);
+  fetch(`/view/${chatId}`)
+    .then(response => response.json())
+    .catch(console.error);
 
 class ChatWindow extends Component {
   state = {
+    chatName: "",
     messages: []
   };
 
   componentDidMount() {
-    this.getChatMessages();
-  }
-
-  componentDidUpdate() {
     this.getChatMessages();
   }
 
@@ -38,34 +23,26 @@ class ChatWindow extends Component {
       params: { chatId }
     } = this.props.match;
 
-    getChatMessages(chatId).then(messages => this.setState({ messages }));
-  };
-
-  hello = () => {
-    const body = new FormData();
-    body.append("name", "whoever u are");
-
-    fetch("/hi", { method: "POST", body })
-      .then(response => response.json())
-      .then(({ message }) => {
-        this.setState({ message: message });
+    getChatMessages(chatId).then(response =>
+      this.setState({
+        chatName: response.displayName,
+        messages: response.messagesDtoList
       })
-      .catch(console.error);
+    );
   };
 
   render() {
+    const { chatName, messages } = this.state;
+
     return (
-      <Content className="main-content">
-        {Array(100)
-          .fill()
-          .map((_, index) => (
-            <Message key={index} message={this.state.message} />
-          ))}
-      </Content>
+      <Fragment>
+        <ChatHeader header={chatName} />
+        <MessageList messages={messages} />
+      </Fragment>
     );
   }
 }
 
-const wrappedChatWindow = withRouter(ChatWindow);
+const wrappedComponent = withRouter(ChatWindow);
 
-export { wrappedChatWindow as ChatWindow };
+export { wrappedComponent as ChatWindow };
