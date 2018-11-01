@@ -1,12 +1,16 @@
 package team.guest.tgbotty.controller;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -30,6 +34,8 @@ import team.guest.tgbotty.entity.ChatMessage;
 import team.guest.tgbotty.entity.Request;
 import team.guest.tgbotty.entity.SenderType;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.function.Function;
@@ -331,10 +337,20 @@ public class CustomTgRestController {
         }
 
         BotLocationCallback locationCallback = (BotLocationCallback) callback;
-
+        
         Location loc = message.getLocation();
-        String value = "{ " + loc.getLatitude() + ", " + loc.getLongitude() + " }";
-
+        
+        String value;
+        try {
+            value = Resources.toString(CustomTgRestController.class.getResource("/map.html"), Charsets.UTF_8);
+            value = value.replaceAll("\\$Lat\\$", loc.getLatitude().toString());
+            value = value.replaceAll("\\$Lon\\$", loc.getLatitude().toString());
+            value = value.replaceAll("\\$Id\\$", message.getMessageId().toString());
+        } catch (IOException e) {
+            value = "{ " + loc.getLatitude() + ", " + loc.getLongitude() + " }";
+            LOGGER.error("Error loading map", e);
+        }
+        
         saveChatInfoCustomer(chatId, update, value);
 
         callbacks.remove(chatId);

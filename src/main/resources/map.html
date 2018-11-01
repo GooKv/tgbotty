@@ -1,0 +1,14 @@
+<script src="https://maps.api.2gis.ru/2.0/loader.js?pkg=full"></script>
+<script type="text/javascript">
+    var map;
+
+    DG.then(function () {
+        map = DG.map('map$Id$', {
+            center: [$Lat$, $Lon$],
+            zoom: 14
+        });
+
+        DG.marker([$Lat$, $Lon$]).addTo(map);
+    });
+</script>
+<div id="map$Id$" style="width:500px; height:200px"></div>
