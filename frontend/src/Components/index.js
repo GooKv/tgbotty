@@ -1,3 +1,4 @@
 export * from "./Menu";
-export * from "./ChatWindow";
+export * from "./MessageList";
 export * from "./ChatHeader";
+export * from "./ChatWindow";
