@@ -19,7 +19,7 @@ public class Chat {
     private String activeProcessId;
     @ElementCollection
     @CollectionTable(name = "message", joinColumns = @JoinColumn(name = "chat_id"))
-    private List<Message> messages = new ArrayList<>();
+    private List<ChatMessage> chatMessages = new ArrayList<>();
 
     protected Chat() {
     }
@@ -64,12 +64,12 @@ public class Chat {
         this.activeProcessId = activeProcessId;
     }
 
-    public List<Message> getMessages() {
-        return messages;
+    public List<ChatMessage> getChatMessages() {
+        return chatMessages;
     }
 
-    public void setMessages(List<Message> messages) {
-        this.messages = messages;
+    public void setChatMessages(List<ChatMessage> chatMessages) {
+        this.chatMessages = chatMessages;
     }
 
     @Override

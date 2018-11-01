@@ -9,17 +9,18 @@ import org.springframework.web.bind.annotation.*;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.WebhookBot;
 import team.guest.tgbotty.bot.callbacks.BotKeyboardCallback;
 import team.guest.tgbotty.dao.ChatRepository;
 import team.guest.tgbotty.entity.Chat;
-import team.guest.tgbotty.entity.Message;
+import team.guest.tgbotty.entity.ChatMessage;
 
-import java.sql.Timestamp;
+import java.sql.Date;
 import java.util.Arrays;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -88,14 +89,15 @@ public class CustomTgRestController {
 
     private void saveChatInfo(long chatId, Update update) {
         Chat chat = chatRepository.findById(chatId).orElseGet(() -> new Chat(chatId));
-        List<Message> messages = chat.getMessages();
-        org.telegram.telegrambots.meta.api.objects.Message updateMessage = update.getMessage();
-        Message message = new Message(chatId,
-                                      updateMessage.getText(),
-                                      new Timestamp(updateMessage.getDate()),
+        List<ChatMessage> chatMessages = chat.getChatMessages();
+        Message updateMessage = update.getMessage();
+        Date date = new Date(updateMessage.getDate());
+        ChatMessage chatMessage = new ChatMessage(chatId,
+                                                  updateMessage.getText(),
+                                                  date,
                                       updateMessage.getFrom().getBot()? "bot" : updateMessage.getFrom().getUserName());
-        messages.add(message);
-        chat.setMessages(messages);
+        chatMessages.add(chatMessage);
+        chat.setChatMessages(chatMessages);
         chatRepository.save(chat);
 
     }
@@ -105,12 +107,12 @@ public class CustomTgRestController {
         return exampleProcessStarter.startProcess(processName, env).getId();
     }
 
-    public void registerKeyboardCallback(org.telegram.telegrambots.meta.api.objects.Message message, BotKeyboardCallback callback) {
+    public void registerKeyboardCallback(Message message, BotKeyboardCallback callback) {
         keyboardCallbacks.put(Pair.of(message.getChatId(), message.getMessageId()), callback);
     }
 
     private BotApiMethod handleCallbackQueryUpdate(CallbackQuery callbackQuery) {
-        org.telegram.telegrambots.meta.api.objects.Message originalMessage = callbackQuery.getMessage();
+        Message originalMessage = callbackQuery.getMessage();
         if(originalMessage == null) {
             LOGGER.warn("There are no original message for callback");
             return null;
