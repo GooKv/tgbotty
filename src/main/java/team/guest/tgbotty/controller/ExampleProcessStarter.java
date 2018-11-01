@@ -119,28 +119,6 @@ public class ExampleProcessStarter {
             Long chatId = ((Number) chatIdObject).longValue();
             final String processId = processInstance.getId();
             saveProcessIdInChat(chatId, processId);
-            runtimeService.addEventListener(new ActivitiEventListener() {
-                @Override
-                public void onEvent(ActivitiEvent event) {
-                    if (event.getType() == ActivitiEventType.PROCESS_COMPLETED && Objects.equals(event.getProcessInstanceId(), processId)) {
-                        try {
-                            entityManager.getTransaction().begin();
-                            chatRepository.findByChatId(chatId)
-                                    .ifPresent(chat -> chat.setActiveProcessId(null));
-                            entityManager.getTransaction().commit();
-                        } catch (Exception e) {
-                            if (entityManager.getTransaction().isActive()) {
-                                entityManager.getTransaction().rollback();
-                            }
-                        }
-                    }
-                }
-
-                @Override
-                public boolean isFailOnException() {
-                    return false;
-                }
-            });
         } else {
             System.err.println("No chat id for process " + processName);
         }
@@ -148,7 +126,16 @@ public class ExampleProcessStarter {
         return processInstance;
     }
 
-    public void deleteProcessInstance(String processInstanceId, String deleteReason) {
-        runtimeService.deleteProcessInstance(processInstanceId, deleteReason);
+    @Transactional
+    public void deleteProcessInstanceIfExists(String processInstanceId, String deleteReason) {
+        ProcessInstance processInstance = runtimeService
+                .createProcessInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .active()
+                .singleResult();
+
+        if (processInstance != null) {
+            runtimeService.deleteProcessInstance(processInstanceId, deleteReason);
+        }
     }
 }

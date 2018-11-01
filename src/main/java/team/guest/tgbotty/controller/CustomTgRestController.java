@@ -3,14 +3,12 @@ package team.guest.tgbotty.controller;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.activiti.engine.runtime.ProcessInstance;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -21,7 +19,6 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.WebhookBot;
-import team.guest.tgbotty.bot.BotProcessScriptsFacade;
 import team.guest.tgbotty.bot.callbacks.BotKeyboardCallback;
 import team.guest.tgbotty.bot.callbacks.BotLocationCallback;
 import team.guest.tgbotty.bot.callbacks.BotMessageCallback;
@@ -34,7 +31,6 @@ import team.guest.tgbotty.entity.ChatMessage;
 import team.guest.tgbotty.entity.Request;
 import team.guest.tgbotty.entity.SenderType;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
@@ -62,7 +58,7 @@ public class CustomTgRestController {
 
     @Value("${tg.bot.key}")
     private String token;
-    
+
     @Autowired
     public CustomTgRestController(ExampleProcessStarter exampleProcessStarter,
                                   ChatRepository chatRepository,
@@ -121,8 +117,11 @@ public class CustomTgRestController {
     @Transactional
     public void startDialogWithHuman(Long chatId) throws TelegramApiException {
         Chat chat = chatRepository.findByChatId(chatId).orElseThrow(() -> new NoChatFoundException(chatId));
-        exampleProcessStarter.deleteProcessInstance(chat.getActiveProcessId(), "Supporter interrupt dialog");
-        
+
+        String processInstanceId = chat.getActiveProcessId();
+
+        exampleProcessStarter.deleteProcessInstanceIfExists(processInstanceId, "Supporter interrupt dialog");
+
         chat.setActiveProcessId(null);
         chat.setDialogMode(true);
         
@@ -132,7 +131,11 @@ public class CustomTgRestController {
     public String assignRequest(Long chatId) {
         Chat chat = chatRepository.findByChatId(chatId).orElseThrow(() -> new NoChatFoundException(chatId));
         String requestNumber = calculateRequestNumber(chat);
-        Request request = new Request(requestNumber, "text");
+        
+        String text = null;
+        if(chat.getChatMessages().size() > 0) text = chat.getChatMessages().get(0).getSender();
+        
+        Request request = new Request(requestNumber, text);
         request.setChat(chat);
         requestRepository.save(request);
         List<Request> chatRequests = chat.getChatRequests();
@@ -164,7 +167,7 @@ public class CustomTgRestController {
 
         String activeProcessId = chat.getActiveProcessId();
         if (activeProcessId != null) {
-            exampleProcessStarter.deleteProcessInstance(activeProcessId, "User start another process");
+            exampleProcessStarter.deleteProcessInstanceIfExists(activeProcessId, "User start another process");
         }
         chat.setActiveProcessId(processInstanceId);
         

@@ -7,6 +7,7 @@ public class MessageDto {
     private String message;
     private Long messageId;
     private String time;
+    private boolean isLocation;
 
     public MessageDto(String sender, String senderType, String message, Long messageId, String time) {
         this.sender = sender;
@@ -57,5 +58,13 @@ public class MessageDto {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public boolean isLocation() {
+        return isLocation;
+    }
+
+    public void setLocation(boolean location) {
+        isLocation = location;
     }
 }
