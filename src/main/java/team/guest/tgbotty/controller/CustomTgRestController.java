@@ -68,7 +68,7 @@ public class CustomTgRestController {
 
             Long chatId = update.getMessage().getChatId();
 
-            saveChatInfo(chatId, update);
+            saveChatInfoCustomer(chatId, update);
 
             exampleProcessStarter.startRepeaterProcess(chatId, update);
 
@@ -103,21 +103,24 @@ public class CustomTgRestController {
     public String testReceived(@PathVariable String path) {
         return this.registeredBots.containsKey(path) ? "Hi there " + path + "!" : "Callback not found for " + path;
     }
-
-    private void saveChatInfo(long chatId, Update update) {
+    
+    private void saveChatInfoCustomer(long chatId, Update update) {
+        Message updateMessage = update.getMessage();
+        saveChatInfo(chatId, updateMessage.getText(), new Timestamp(updateMessage.getDate() * 1000L), 
+                updateMessage.getFrom().getUserName(), SenderType.CUSTOMER);
+    }
+    
+    public void saveChatInfo(long chatId, String message, Timestamp timestamp, String username, SenderType senderType) {
         Chat chat = chatRepository.findByChatId(chatId).orElseGet(() -> chatRepository.save(new Chat(chatId)));
         List<ChatMessage> chatMessages = chat.getChatMessages();
-        Message updateMessage = update.getMessage();
-        Timestamp timestamp = new Timestamp(updateMessage.getDate() * 1000L);
-        ChatMessage chatMessage = new ChatMessage(chat,
-                                                  updateMessage.getText(),
-                                                  timestamp,
-                                                  updateMessage.getFrom().getUserName(), SenderType.CUSTOMER);
+        
+        ChatMessage chatMessage = new ChatMessage(chat, message, timestamp, username, senderType);
         chatMessageRepository.save(chatMessage);
+        
         chatMessages.add(chatMessage);
         chat.setChatMessages(chatMessages);
+        
         chatRepository.save(chat);
-
     }
 
     @PostMapping(value = "/startprocess/{processName}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

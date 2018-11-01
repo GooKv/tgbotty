@@ -5,14 +5,17 @@ import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import team.guest.tgbotty.bot.callbacks.BotKeyboardCallback;
 import team.guest.tgbotty.controller.CustomTgRestController;
+import team.guest.tgbotty.entity.SenderType;
 
 import javax.inject.Named;
+import java.sql.Timestamp;
 import java.util.*;
 
 @Named("bot")
@@ -29,7 +32,10 @@ public class BotProcessScriptsFacade {
     }
 
     public void sendSimpleMessage(Long chatId, String message) throws TelegramApiException {
-        sender.execute(new SendMessage(chatId, message));
+        Message sent = sender.execute(new SendMessage(chatId, message));
+
+        customTgRestController.saveChatInfo(chatId, message,
+                new Timestamp(sent.getDate() * 1000L), null, SenderType.BOT);
     }
 
     public void sendOptions(Long chatId, String message, String key, 
@@ -43,6 +49,10 @@ public class BotProcessScriptsFacade {
         
         sendKeyboardAsync(chatId, message, map,
                 (originalMessage, option) -> {
+                    customTgRestController.saveChatInfo(chatId, map.get(option),
+                            new Timestamp(System.currentTimeMillis()), null, SenderType.CUSTOMER);
+                    
+                    // TODO: replace with task finish
                     try {
                         sendSimpleMessage(originalMessage.getChatId(), "Received " + option);
                     } catch (TelegramApiException ignored) {
@@ -68,7 +78,11 @@ public class BotProcessScriptsFacade {
         
         action.setReplyMarkup(keyboardMarkup);
         
-        customTgRestController.registerKeyboardCallback(sender.execute(action), callback);
+        Message sent = sender.execute(action);
+        customTgRestController.registerKeyboardCallback(sent, callback);
+
+        customTgRestController.saveChatInfo(chatId, message,
+                new Timestamp(sent.getDate() * 1000L), null, SenderType.BOT);
     }
     
 }
