@@ -57,7 +57,7 @@ class ChatWindow extends Component {
   };
 
   render() {
-    const { chatName, messages, canTalk } = this.state;
+    const { chatName, messages, canTalk, avatarUrl } = this.state;
 
     return (
       <Layout className="chat-layout">

@@ -95,7 +95,7 @@ class Menu extends Component {
                     <List.Item>
                       <div className="menu-item">
                         <div className="message-avatar">
-                          <Avatar user={chat.lastMessage} />
+                          <Avatar user={chat.lastMessage} avatarUrl={chat.avatarUrl}/>
                         </div>
                         <div className="message-content">
                           <div className="message-sender">
