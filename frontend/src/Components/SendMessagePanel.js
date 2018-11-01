@@ -1,23 +1,35 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
-import { Layout, Input, Button, Form } from "antd";
+import { Layout, Input, Button, Form, message } from "antd";
 
 const { Footer } = Layout;
 const { TextArea } = Input;
 
-const sendMessage = (chatId, message) => {
-  if (!message || !message.trim()) {
+const sendMessage = (chatId, messageText) => {
+  if (!messageText || !messageText.trim()) {
     return Promise.resolve();
   }
 
   const body = new FormData();
-  body.append("message", message);
+  body.append("message", messageText);
 
   return fetch(`view/${chatId}/sendMessage`, { method: "POST", body }).catch(
     error => {
       console.error(error);
       message.error(
         "Не удалось отправить сообщение, попробуйте повторить позднее"
+      );
+      throw error;
+    }
+  );
+};
+
+const joinToChat = chatId => {
+  return fetch(`view/${chatId}/startDialog`).catch(
+    error => {
+      console.error(error);
+      message.error(
+        "Не удалось присоединиться к диалогу, попробуйте повторить позднее"
       );
       throw error;
     }
@@ -33,6 +45,7 @@ class SendMessagePanel extends Component {
       }
     } = props;
     this.sendMessage = sendMessage.bind(undefined, chatId);
+    this.joinToChat = joinToChat.bind(undefined, chatId);
   }
 
   handleSubmit = event => {
@@ -48,27 +61,31 @@ class SendMessagePanel extends Component {
   };
 
   render() {
-    const { getFieldDecorator } = this.props.form;
+    const {
+      canTalk,
+      form: { getFieldDecorator }
+    } = this.props;
 
     return (
       <Footer className="main-footer">
-        <Form
-          layout="horizontal"
-          onSubmit={this.handleSubmit}
-          className="send-message-form"
-        >
-          {getFieldDecorator("message")(
-            <TextArea rows={4} placeholder="Введите сообщение" />
-          )}
-          <Button
-            type="primary"
-            size="large"
-            htmlType="submit"
-            onClick={this.onClick}
+        {canTalk ? (
+          <Form
+            layout="horizontal"
+            onSubmit={this.handleSubmit}
+            className="send-message-form"
           >
-            Отправить
+            {getFieldDecorator("message")(
+              <TextArea rows={4} placeholder="Введите сообщение" />
+            )}
+            <Button type="primary" size="large" htmlType="submit">
+              Отправить
+            </Button>
+          </Form>
+        ) : (
+          <Button type="primary" size="large" onClick={this.joinToChat}>
+            Присоединиться к чату
           </Button>
-        </Form>
+        )}
       </Footer>
     );
   }
