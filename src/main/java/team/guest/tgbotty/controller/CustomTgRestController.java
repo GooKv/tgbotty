@@ -280,6 +280,8 @@ public class CustomTgRestController {
                 case HELP_COMMAND:
                     startProcess(chatId, "help", update);
             }
+            
+            return null;
         }
 
         if(chat.getDialogMode()) {
