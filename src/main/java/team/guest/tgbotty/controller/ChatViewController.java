@@ -48,4 +48,16 @@ public class ChatViewController {
         customTgRestController.sendMessageFromSupporter(message);
     }
 
+    @RequestMapping("view/request/")
+    @ResponseBody
+    public void getRequestList() {
+        chatManager.getRequestList();
+    }
+
+    @RequestMapping("view/request/{id}")
+    @ResponseBody
+    public void getChatIdByRequest(@PathVariable("id") long id) {
+        chatManager.getChatIdByRequest(id);
+    }
+
 }

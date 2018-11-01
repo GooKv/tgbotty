@@ -3,6 +3,8 @@ package team.guest.tgbotty.converter;
 import org.springframework.stereotype.Service;
 import team.guest.tgbotty.dto.ChatViewDto;
 import team.guest.tgbotty.dto.MessageDto;
+import team.guest.tgbotty.entity.Request;
+import team.guest.tgbotty.dto.RequestDto;
 import team.guest.tgbotty.entity.Chat;
 import team.guest.tgbotty.entity.ChatMessage;
 
@@ -24,6 +26,14 @@ public class ChatConverter {
         messageDto.setTime(chatMessage.getSendTime().toString());
         messageDto.setMessageId(chatMessage.getId());
         return messageDto;
+    }
+
+    public RequestDto convert(Request request) {
+        RequestDto requestDto = new RequestDto();
+        requestDto.setRequestId(request.getId());
+        requestDto.setRequestNumber(request.getNumber());
+        requestDto.setText(request.getText());
+        return requestDto;
     }
 
 }
