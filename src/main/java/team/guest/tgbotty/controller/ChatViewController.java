@@ -50,7 +50,7 @@ public class ChatViewController {
     @RequestMapping("view/{id}/startDialog")
     @ResponseBody
     public void startDialog(@PathVariable("id") long id) {
-        customTgRestController.startDialogWithHuman();
+        customTgRestController.startDialogWithHuman(id);
     }
 
     @RequestMapping(value = "view/{id}/sendMessage", method = RequestMethod.POST )
