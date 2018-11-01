@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.WebhookBot;
 import team.guest.tgbotty.bot.callbacks.BotKeyboardCallback;
+import team.guest.tgbotty.dao.ChatMessageRepository;
 import team.guest.tgbotty.dao.ChatRepository;
 import team.guest.tgbotty.entity.Chat;
 import team.guest.tgbotty.entity.ChatMessage;
@@ -27,22 +28,25 @@ import java.util.stream.Collectors;
 
 @RestController("/callback")
 public class CustomTgRestController {
-    
+
     private final Logger LOGGER = LoggerFactory.getLogger(CustomTgRestController.class);
-    
+
     private final ExampleProcessStarter exampleProcessStarter;
     private final Map<String, WebhookBot> registeredBots;
     private final ChatRepository chatRepository;
+    private final ChatMessageRepository chatMessageRepository;
     private String START_PROCESS_COMMAND;
 
     private Map<Pair<Long, Integer>, BotKeyboardCallback> keyboardCallbacks = new HashMap<>();
-    
+
     @Autowired
     public CustomTgRestController(ExampleProcessStarter exampleProcessStarter,
                                   ChatRepository chatRepository,
+                                  ChatMessageRepository chatMessageRepository,
                                   WebhookBot... webHookBots) {
         this.exampleProcessStarter = exampleProcessStarter;
         this.chatRepository = chatRepository;
+        this.chatMessageRepository = chatMessageRepository;
         registeredBots = Arrays.stream(webHookBots)
                 .collect(Collectors.toMap(WebhookBot::getBotPath, Function.identity()));
     }
@@ -54,11 +58,11 @@ public class CustomTgRestController {
         if (webhookBot == null) {
             throw new BotNotFoundException(path);
         }
-        
+
         if (update.hasCallbackQuery()) {
             return handleCallbackQueryUpdate(update.getCallbackQuery());
         }
-        
+
         Long chatId = update.getMessage().getChatId();
 
         saveChatInfo(chatId, update);
@@ -88,14 +92,15 @@ public class CustomTgRestController {
     }
 
     private void saveChatInfo(long chatId, Update update) {
-        Chat chat = chatRepository.findById(chatId).orElseGet(() -> new Chat(chatId));
+        Chat chat = chatRepository.findById(chatId).orElseGet(() -> chatRepository.save(new Chat(chatId)));
         List<ChatMessage> chatMessages = chat.getChatMessages();
         Message updateMessage = update.getMessage();
         Date date = new Date(updateMessage.getDate());
-        ChatMessage chatMessage = new ChatMessage(chatId,
+        ChatMessage chatMessage = new ChatMessage(chat,
                                                   updateMessage.getText(),
                                                   date,
-                                      updateMessage.getFrom().getBot()? "bot" : updateMessage.getFrom().getUserName());
+                                                  updateMessage.getFrom().getBot() ? "bot" : updateMessage.getFrom().getUserName());
+        chatMessageRepository.save(chatMessage);
         chatMessages.add(chatMessage);
         chat.setChatMessages(chatMessages);
         chatRepository.save(chat);
@@ -113,13 +118,13 @@ public class CustomTgRestController {
 
     private BotApiMethod handleCallbackQueryUpdate(CallbackQuery callbackQuery) {
         Message originalMessage = callbackQuery.getMessage();
-        if(originalMessage == null) {
+        if (originalMessage == null) {
             LOGGER.warn("There are no original message for callback");
             return null;
         }
-        
+
         Pair<Long, Integer> key = Pair.of(originalMessage.getChatId(), originalMessage.getMessageId());
-        if(!keyboardCallbacks.containsKey(key)) {
+        if (!keyboardCallbacks.containsKey(key)) {
             LOGGER.warn("Received message with no registered callback");
             return null;
         }
@@ -130,16 +135,16 @@ public class CustomTgRestController {
         int selectedOption;
         try {
             selectedOption = Integer.parseInt(callbackQuery.getData());
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             LOGGER.warn("Unable to parse callback data", e);
             return null;
         }
 
         callback.answerReceived(originalMessage, selectedOption);
-        
+
         AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
         answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
         return answerCallbackQuery;
     }
-    
+
 }

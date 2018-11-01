@@ -21,7 +21,7 @@ public class Chat {
     private String activeProcessId;
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     @ElementCollection
-    @CollectionTable(name = "message", joinColumns = @JoinColumn(name = "chat_id"))
+    @OneToMany(mappedBy ="chat")
     private List<ChatMessage> chatMessages = new ArrayList<>();
 
     protected Chat() {

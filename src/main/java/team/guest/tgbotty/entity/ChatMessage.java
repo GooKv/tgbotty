@@ -10,8 +10,9 @@ public class ChatMessage {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
-    @Column(name = "chat_id")
-    private Long chatId;
+    @ManyToOne
+    //@JoinColumn(name="id", nullable=false)
+    private Chat chat;
     @Column(name = "text")
     private String text;
     @Column(name = "send_time")
@@ -22,24 +23,24 @@ public class ChatMessage {
     protected ChatMessage() {
     }
 
-    public ChatMessage(Long chatId, String text) {
-        this.chatId = chatId;
+    public ChatMessage(Chat chat, String text) {
+        this.chat = chat;
         this.text = text;
     }
 
-    public ChatMessage(Long chatId, String text, Date sendTime, String sender) {
-        this.chatId = chatId;
+    public ChatMessage(Chat chat, String text, Date sendTime, String sender) {
+        this.chat = chat;
         this.text = text;
         this.sendTime = sendTime;
         this.sender = sender;
     }
 
-    public Long getChatId() {
-        return chatId;
+    public Chat getChatId() {
+        return chat;
     }
 
-    public void setChatId(Long chatId) {
-        this.chatId = chatId;
+    public void setChatId(Chat chat) {
+        this.chat = chat;
     }
 
     public String getText() {
