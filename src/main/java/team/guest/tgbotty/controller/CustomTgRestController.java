@@ -133,6 +133,7 @@ public class CustomTgRestController {
         Chat chat = chatRepository.findByChatId(chatId).orElseThrow(() -> new NoChatFoundException(chatId));
         String requestNumber = calculateRequestNumber(chat);
         Request request = new Request(requestNumber, "text");
+        request.setChat(chat);
         requestRepository.save(request);
         List<Request> chatRequests = chat.getChatRequests();
         chatRequests.add(request);
