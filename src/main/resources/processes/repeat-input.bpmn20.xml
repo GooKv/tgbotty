@@ -13,7 +13,7 @@
         <endEvent id="endEvent" name="endEvent"/>
     </process>
 
-    <process id="help" name="help" isExecutable="true">
+    <process id="helpOld" name="helpOld" isExecutable="true">
         <startEvent id="startHelp"/>
         <sequenceFlow sourceRef="startHelp" targetRef="setupOptions"/>
         <serviceTask id="setupOptions" name="" activiti:expression="#{bot.sendOptions(execution, chatId, 'Вопрос юзеру', 'helpAnswer', 'ineedawoman', 'I need a woman', 'icantcode', 'I cant code')}"/>
