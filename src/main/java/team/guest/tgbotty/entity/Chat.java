@@ -23,6 +23,9 @@ public class Chat {
     @ElementCollection
     @OneToMany(mappedBy ="chat")
     private List<ChatMessage> chatMessages = new ArrayList<>();
+    @ElementCollection
+    @OneToMany(mappedBy ="chat")
+    private List<Request> chatRequests = new ArrayList<>();
 
     protected Chat() {
     }
@@ -73,6 +76,14 @@ public class Chat {
 
     public void setChatMessages(List<ChatMessage> chatMessages) {
         this.chatMessages = chatMessages;
+    }
+
+    public List<Request> getChatRequests() {
+        return chatRequests;
+    }
+
+    public void setChatRequests(List<Request> chatRequests) {
+        this.chatRequests = chatRequests;
     }
 
     @Override

@@ -2,10 +2,7 @@ package team.guest.tgbotty.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import team.guest.tgbotty.dto.ChatDto;
 import team.guest.tgbotty.dto.ChatViewDto;
 
@@ -42,10 +39,22 @@ public class ChatViewController {
         customTgRestController.startDialogWithHuman();
     }
 
-    @RequestMapping("view/{id}/sendMessage")
+    @RequestMapping(value = "view/{id}/sendMessage", method = RequestMethod.POST )
     @ResponseBody
     public void sendMessage(@PathVariable("id") long id, String message) {
         customTgRestController.sendMessageFromSupporter(message);
+    }
+
+    @RequestMapping("view/request/")
+    @ResponseBody
+    public void getRequestList() {
+        chatManager.getRequestList();
+    }
+
+    @RequestMapping("view/request/{id}")
+    @ResponseBody
+    public void getChatIdByRequest(@PathVariable("id") long id) {
+        chatManager.getChatIdByRequest(id);
     }
 
 }

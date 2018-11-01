@@ -1,9 +1,15 @@
 package team.guest.tgbotty.bot.callbacks;
 
-import org.telegram.telegrambots.meta.api.objects.Message;
-
-public interface BotKeyboardCallback {
+public abstract class BotKeyboardCallback implements IBotCallback {
     
-    void answerReceived(Message originalMessage, String selectedOption);
+    private int originalMessageId;
+    
+    public void setOriginalMessageId(int id) {
+        this.originalMessageId = id;
+    }
+    
+    public int getOriginalMessageId() {
+        return this.originalMessageId;
+    }
     
 }

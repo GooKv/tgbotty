@@ -7,11 +7,24 @@ public class ChatDto {
     private Long id;
     private String displayName;
     private List<MessageDto> messagesDtoList;
+    private List<RequestDto> requestDtoList;
 
-    public ChatDto(Long id, String displayName, List<MessageDto> messagesDtoList) {
+    public ChatDto() {
+    }
+
+    public ChatDto(Long id, String displayName, List<MessageDto> messagesDtoList, List<RequestDto> requestDtoList) {
         this.id = id;
         this.displayName = displayName;
         this.messagesDtoList = messagesDtoList;
+        this.requestDtoList = requestDtoList;
+    }
+
+    public List<RequestDto> getRequestDtoList() {
+        return requestDtoList;
+    }
+
+    public void setRequestDtoList(List<RequestDto> requestDtoList) {
+        this.requestDtoList = requestDtoList;
     }
 
     public Long getId() {
