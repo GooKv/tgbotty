@@ -7,8 +7,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.WebhookBot;
 import team.guest.tgbotty.dao.ChatRepository;
 import team.guest.tgbotty.entity.Chat;
+import team.guest.tgbotty.entity.Message;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -52,7 +54,15 @@ public class CustomTgRestController {
         return this.registeredBots.containsKey(path) ? "Hi there " + path + "!" : "Callback not found for " + path;
     }
 
+    private void saveChatInfo(long chatId, Update update) {
+        Chat chat = chatRepository.findById(chatId).orElseGet(() -> new Chat(chatId));
+        List<Message> messages = chat.getMessages();
+        Message message = new Message();
+        messages.add(e)
+
+    }
+
     private boolean isChatExisted(long chatId) {
-        return chatRepository.findById(chatId).isPresent();
+        return .isPresent();
     }
 }
