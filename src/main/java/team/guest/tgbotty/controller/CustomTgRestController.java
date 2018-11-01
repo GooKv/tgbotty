@@ -8,10 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Location;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.generics.WebhookBot;
 import team.guest.tgbotty.bot.callbacks.BotKeyboardCallback;
 import team.guest.tgbotty.bot.callbacks.BotLocationCallback;
@@ -115,7 +112,13 @@ public class CustomTgRestController {
         if(message == null) message = updateMessage.getText();
         
         saveChatInfo(chatId, message, new Timestamp(updateMessage.getDate() * 1000L), 
-                updateMessage.getFrom().getUserName(), SenderType.CUSTOMER);
+                formUserName(updateMessage.getFrom()), SenderType.CUSTOMER);
+    }
+    
+    public String formUserName(User user) {
+        String name = user.getFirstName();
+        if(user.getLastName() != null) name += " " + user.getLastName();
+        return name;
     }
     
     public void saveChatInfo(long chatId, String message, Timestamp timestamp, String username, SenderType senderType) {
