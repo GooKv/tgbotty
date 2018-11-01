@@ -47,6 +47,7 @@ class Menu extends Component {
     return (
       <Sider
         className="main-sider"
+        theme="light"
         width={400}
         collapsible
         trigger={<Icon type="menu-fold" theme="outlined" />}

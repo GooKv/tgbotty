@@ -17,7 +17,7 @@ class App extends Component {
         <Layout className="main-layout">
           <Menu />
           <Content>
-            <Layout className="main-layout">
+            <Layout className="chat-layout">
               <Switch>
                 <Route path="/chat/:chatId" render={renderChatWindow} />
               </Switch>

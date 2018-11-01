@@ -24,8 +24,9 @@ class MessageList extends Component {
                 avatar={
                   <Avatar
                     style={isUser(item) ? userAvatarStyle : botAvatarStyle}
+                    icon={!isUser(item) && "user"}
                   >
-                    {item.sender.charAt(0)}
+                    {isUser(item) && item.sender.charAt(0)}
                   </Avatar>
                 }
                 title={item.sender}
