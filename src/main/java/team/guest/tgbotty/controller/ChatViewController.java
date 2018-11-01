@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import team.guest.tgbotty.dto.ChatDto;
 import team.guest.tgbotty.dto.ChatViewDto;
+import team.guest.tgbotty.dto.RequestDto;
 
 import java.util.List;
 
@@ -48,14 +49,14 @@ public class ChatViewController {
 
     @RequestMapping("view/request/")
     @ResponseBody
-    public void getRequestList() {
-        chatManager.getRequestList();
+    public List<RequestDto> getRequestList() {
+        return chatManager.getRequestList();
     }
 
     @RequestMapping("view/request/{id}")
     @ResponseBody
-    public void getChatIdByRequest(@PathVariable("id") long id) {
-        chatManager.getChatIdByRequest(id);
+    public Long getChatIdByRequest(@PathVariable("id") long id) {
+        return chatManager.getChatIdByRequest(id);
     }
 
 }
