@@ -4,10 +4,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
+import org.telegram.telegrambots.meta.api.methods.GetUserProfilePhotos;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.bots.AbsSender;
@@ -29,6 +31,9 @@ import java.util.Map;
 @Named("bot")
 @Component
 public class BotProcessScriptsFacade {
+
+    @Value("${tg.bot.key}")
+    private String token;
     
     private final CustomTgRestController customTgRestController;
     private final AbsSender sender;
@@ -40,7 +45,24 @@ public class BotProcessScriptsFacade {
         this.customTgRestController = customTgRestController;
         this.processStarter = processStarter;
     }
-
+    
+    public String getAvatar(User user) throws TelegramApiException {
+        GetUserProfilePhotos method = new GetUserProfilePhotos();
+        method.setUserId(user.getId());
+        method.setLimit(1);
+        
+        UserProfilePhotos photos = sender.execute(method);
+        if(photos.getTotalCount() == 0) return null;
+        
+        PhotoSize photo = photos.getPhotos().get(0).get(0);
+        
+        GetFile getFileMethod = new GetFile();
+        getFileMethod.setFileId(photo.getFileId());
+        
+        File file = sender.execute(new GetFile());
+        return file.getFileUrl(token);
+    }
+    
     public void sendSimpleMessage(Long chatId, String message) throws TelegramApiException {
         Message sent = sender.execute(new SendMessage(chatId, message));
 

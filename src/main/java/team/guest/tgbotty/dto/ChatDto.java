@@ -8,7 +8,9 @@ public class ChatDto {
     private String displayName;
     private List<MessageDto> messagesDtoList;
     private List<RequestDto> requestDtoList;
-
+    
+    private String avatarUrl;
+    
     public ChatDto() {
     }
 
@@ -50,4 +52,13 @@ public class ChatDto {
     public void setMessagesDtoList(List<MessageDto> messagesDtoList) {
         this.messagesDtoList = messagesDtoList;
     }
+    
+    public void setAvatarUrl(String url) {
+        this.avatarUrl = url;
+    }
+    
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+    
 }
