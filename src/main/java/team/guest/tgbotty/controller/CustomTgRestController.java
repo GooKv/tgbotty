@@ -26,10 +26,7 @@ import team.guest.tgbotty.entity.Request;
 import team.guest.tgbotty.entity.SenderType;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -155,7 +152,7 @@ public class CustomTgRestController {
         if (message == null) message = updateMessage.getText();
 
         saveChatInfo(chatId, message, new Timestamp(updateMessage.getDate() * 1000L),
-                     formUserName(updateMessage.getFrom()), SenderType.CUSTOMER);
+                formUserName(updateMessage.getFrom()), SenderType.CUSTOMER);
     }
 
     public String formUserName(User user) {
