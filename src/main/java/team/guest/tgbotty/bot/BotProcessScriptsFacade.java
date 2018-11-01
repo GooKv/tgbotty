@@ -7,11 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import team.guest.tgbotty.bot.callbacks.BotKeyboardCallback;
+import team.guest.tgbotty.bot.callbacks.BotLocationCallback;
+import team.guest.tgbotty.bot.callbacks.BotMessageCallback;
 import team.guest.tgbotty.controller.CustomTgRestController;
 import team.guest.tgbotty.controller.ExampleProcessStarter;
 import team.guest.tgbotty.entity.SenderType;
@@ -56,16 +59,17 @@ public class BotProcessScriptsFacade {
 
         execution.setVariable(key + "Options", map);
 
-        sendKeyboardAsync(chatId, message, map,
-                (originalMessage, option) -> {
-                    customTgRestController.saveChatInfo(chatId, map.get(option),
-                            new Timestamp(System.currentTimeMillis()), null, SenderType.CUSTOMER);
-
-                    processStarter.completeUserTask(chatId, ImmutableMap.of(key, option));
-                });
+        sendKeyboardAsync(chatId, message, map, new BotKeyboardCallback() {
+            @Override
+            public void answerReceived(Long chatId, User user, String received) {
+                customTgRestController.saveChatInfo(chatId, map.get(received), 
+                        new Timestamp(System.currentTimeMillis()), user.getUserName(), SenderType.CUSTOMER);
+                processStarter.completeUserTask(chatId, ImmutableMap.of(key, received));
+            }
+        });
     }
     
-    public void sendKeyboardAsync(Long chatId, String message, Map<String, String> options, 
+    private void sendKeyboardAsync(Long chatId, String message, Map<String, String> options, 
                                   BotKeyboardCallback callback) throws TelegramApiException {
         SendMessage action = new SendMessage(chatId, message);
         
@@ -83,10 +87,32 @@ public class BotProcessScriptsFacade {
         action.setReplyMarkup(keyboardMarkup);
         
         Message sent = sender.execute(action);
-        customTgRestController.registerKeyboardCallback(sent, callback);
-
+        customTgRestController.registerCallback(sent.getChatId(), callback);
+        
+        callback.setOriginalMessageId(sent.getMessageId());
+        
         customTgRestController.saveChatInfo(chatId, message,
                 new Timestamp(sent.getDate() * 1000L), null, SenderType.BOT);
+    }
+    
+    public void requestString(Long chatId, String message, String key) throws TelegramApiException {
+        sendSimpleMessage(chatId, message);
+        customTgRestController.registerCallback(chatId, new BotMessageCallback() {
+            @Override
+            public void answerReceived(Long chatId, User user, String received) {
+                processStarter.completeUserTask(chatId, ImmutableMap.of(key, received));
+            }
+        });
+    }
+    
+    public void requestLocation(Long chatId, String message, String key) throws TelegramApiException {
+        sendSimpleMessage(chatId, message);
+        customTgRestController.registerCallback(chatId, new BotLocationCallback() {
+            @Override
+            public void answerReceived(Long chatId, User user, String received) {
+                processStarter.completeUserTask(chatId, ImmutableMap.of(key, received));
+            }
+        });
     }
     
 }
