@@ -9,6 +9,8 @@ import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.bots.AbsSender;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.WebhookBot;
 import team.guest.tgbotty.bot.callbacks.BotKeyboardCallback;
 import team.guest.tgbotty.bot.callbacks.BotLocationCallback;
@@ -39,6 +41,7 @@ public class CustomTgRestController {
     private final ChatMessageRepository chatMessageRepository;
     private static final String START_PROCESS_COMMAND = "/sp";
     private static final String HELP_COMMAND = "/help";
+    private final AbsSender sender;
 
     //private Map<Pair<Long, Integer>, BotKeyboardCallback> keyboardCallbacks = new HashMap<>();
     private Map<Long, IBotCallback> callbacks = new HashMap<>();
@@ -47,10 +50,11 @@ public class CustomTgRestController {
     public CustomTgRestController(ExampleProcessStarter exampleProcessStarter,
                                   ChatRepository chatRepository,
                                   ChatMessageRepository chatMessageRepository,
-                                  WebhookBot... webHookBots) {
+                                  AbsSender sender, WebhookBot... webHookBots) {
         this.exampleProcessStarter = exampleProcessStarter;
         this.chatRepository = chatRepository;
         this.chatMessageRepository = chatMessageRepository;
+        this.sender = sender;
         registeredBots = Arrays.stream(webHookBots)
                 .collect(Collectors.toMap(WebhookBot::getBotPath, Function.identity()));
     }
@@ -90,8 +94,9 @@ public class CustomTgRestController {
         }
     }
 
-    public void sendMessageFromSupporter(Long id, String message) {
-        
+    public void sendMessageFromSupporter(Long chatId, String message) throws TelegramApiException {
+        Message sent = sender.execute(new SendMessage(chatId, message));
+        saveChatInfo(chatId, message, new Timestamp(sent.getDate() * 1000L), null, SenderType.SUPPORT);
     }
 
     public void startDialogWithHuman() {
