@@ -4,6 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import org.activiti.engine.FormService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.delegate.event.ActivitiEvent;
+import org.activiti.engine.delegate.event.ActivitiEventListener;
+import org.activiti.engine.delegate.event.ActivitiEventType;
 import org.activiti.engine.form.FormData;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -14,8 +17,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import team.guest.tgbotty.dao.ChatRepository;
 import team.guest.tgbotty.entity.Chat;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class ExampleProcessStarter {
@@ -23,16 +28,19 @@ public class ExampleProcessStarter {
     private final TaskService taskService;
     private final FormService formService;
     private final ChatRepository chatRepository;
+    private final EntityManager entityManager;
 
     @Autowired
     public ExampleProcessStarter(RuntimeService runtimeService,
                                  TaskService taskService,
                                  FormService formService,
-                                 ChatRepository chatRepository) {
+                                 ChatRepository chatRepository,
+                                 EntityManager entityManager) {
         this.runtimeService = runtimeService;
         this.taskService = taskService;
         this.formService = formService;
         this.chatRepository = chatRepository;
+        this.entityManager = entityManager;
     }
 
     private List<Task> getTaskList() {
@@ -109,7 +117,30 @@ public class ExampleProcessStarter {
 
         if (chatIdObject != null) {
             Long chatId = ((Number) chatIdObject).longValue();
-            saveProcessIdInChat(chatId, processInstance.getId());
+            final String processId = processInstance.getId();
+            saveProcessIdInChat(chatId, processId);
+            runtimeService.addEventListener(new ActivitiEventListener() {
+                @Override
+                public void onEvent(ActivitiEvent event) {
+                    if (event.getType() == ActivitiEventType.PROCESS_COMPLETED && Objects.equals(event.getProcessInstanceId(), processId)) {
+                        try {
+                            entityManager.getTransaction().begin();
+                            chatRepository.findByChatId(chatId)
+                                    .ifPresent(chat -> chat.setActiveProcessId(null));
+                            entityManager.getTransaction().commit();
+                        } catch (Exception e) {
+                            if (entityManager.getTransaction().isActive()) {
+                                entityManager.getTransaction().rollback();
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public boolean isFailOnException() {
+                    return false;
+                }
+            });
         } else {
             System.err.println("No chat id for process " + processName);
         }
@@ -118,10 +149,6 @@ public class ExampleProcessStarter {
     }
 
     public void deleteProcessInstance(String processInstanceId, String deleteReason) {
-        try {
-            runtimeService.deleteProcessInstance(processInstanceId, deleteReason);
-        } catch (Exception ex) {
-            System.err.println(ex.getMessage());
-        }
+        runtimeService.deleteProcessInstance(processInstanceId, deleteReason);
     }
 }

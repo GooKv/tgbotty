@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { HashRouter as Router, Route, Switch } from "react-router-dom";
 import { Layout } from "antd";
 import { Menu, ChatWindow } from "./Components";
-import "./App.scss";
+import "./App.less";
 
 const { Content } = Layout;
 
