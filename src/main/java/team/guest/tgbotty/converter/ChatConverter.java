@@ -83,6 +83,7 @@ public class ChatConverter {
         requestDto.setRequestId(request.getId());
         requestDto.setRequestNumber(request.getNumber());
         requestDto.setText(request.getText());
+        requestDto.setChatId(request.getChat().getId());
         return requestDto;
     }
 
