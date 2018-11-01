@@ -42,7 +42,7 @@ public class ExampleProcessStarter {
     public boolean hasIncompleteProcess(Long chatId) {
         return getTaskList()
                 .stream()
-                .anyMatch(task -> task.getProcessVariables().get("chatId") == chatId);
+                .anyMatch(task -> chatId.equals(task.getProcessVariables().get("chatId")));
     }
 
     @Transactional
@@ -89,7 +89,7 @@ public class ExampleProcessStarter {
 
     public Task getCurrentUserTask(Long chatId) {
         return getTaskList().stream()
-                .filter(task -> task.getProcessVariables().get("chatId") == chatId)
+                .filter(task -> chatId.equals(task.getProcessVariables().get("chatId")))
                 .findFirst()
                 .orElseThrow(RuntimeException::new);
     }
