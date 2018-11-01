@@ -5,15 +5,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "chat")
 public class Chat {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
+    @Column
     private Long chatId;
     @ElementCollection
     private List<String> processList = new ArrayList<>();
+    @Column
     private String activeProcessId;
+    @ElementCollection
+    @CollectionTable(name = "message", joinColumns = @JoinColumn(name = "chat_id"))
+    private List<Message> messages;
 
     protected Chat() {
     }
@@ -56,6 +62,14 @@ public class Chat {
 
     public void setActiveProcessId(String activeProcessId) {
         this.activeProcessId = activeProcessId;
+    }
+
+    public List<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
     }
 
     @Override
