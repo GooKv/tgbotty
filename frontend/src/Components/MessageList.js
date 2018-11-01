@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import ReactDOM from "react-dom";
 import { withRouter } from "react-router-dom";
 import { Layout, List } from "antd";
 import { Avatar } from "./Avatar";
@@ -9,11 +10,17 @@ const { Content } = Layout;
 const isUser = user => user.senderType === "CUSTOMER";
 
 class MessageList extends Component {
+  componentDidUpdate() {
+    window.scrollTo(0, this.wrapperRef.scrollHeight);
+  }
+
+  getRef = ref => (this.wrapperRef = ReactDOM.findDOMNode(ref));
+
   render() {
     const { messages, avatarUrl } = this.props;
 
     return (
-      <Content className="main-content">
+      <Content className="main-content" ref={this.getRef}>
         <List
           itemLayout="horizontal"
           dataSource={messages}
