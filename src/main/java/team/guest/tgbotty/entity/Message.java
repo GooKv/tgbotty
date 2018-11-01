@@ -16,8 +16,8 @@ public class Message {
     private String text;
     @Column(name = "send_time")
     private Timestamp sendTime;
-    @Column
-    private Person sender;
+    @Column(name = "sender")
+    private String sender;
 
     protected Message() {
     }
@@ -27,11 +27,27 @@ public class Message {
         this.text = text;
     }
 
-    public Message(Long chatId, String text, Timestamp sendTime, Person sender) {
+    public Message(Long chatId, String text, Timestamp sendTime, String sender) {
         this.chatId = chatId;
         this.text = text;
         this.sendTime = sendTime;
         this.sender = sender;
+    }
+
+    public Long getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(Long chatId) {
+        this.chatId = chatId;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 
     public Long getId() {
@@ -58,11 +74,11 @@ public class Message {
         this.sendTime = sendTime;
     }
 
-    public Person getSender() {
+    public String getSender() {
         return sender;
     }
 
-    public void setSender(Person sender) {
+    public void setSender(String sender) {
         this.sender = sender;
     }
 }
