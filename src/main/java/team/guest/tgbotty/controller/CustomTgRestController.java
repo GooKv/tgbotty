@@ -166,6 +166,7 @@ public class CustomTgRestController {
     public String getAvatar(User user) throws TelegramApiException {
         GetUserProfilePhotos method = new GetUserProfilePhotos();
         method.setUserId(user.getId());
+        method.setOffset(0);
         method.setLimit(1);
 
         UserProfilePhotos photos = sender.execute(method);
