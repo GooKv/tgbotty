@@ -94,24 +94,28 @@ public class ExampleProcessStarter {
                 .orElseThrow(RuntimeException::new);
     }
 
-    public void startProcess(String processId, Update update) {
+    public ProcessInstance startProcess(String processId, Update update) {
         Map<String, Object> env = ImmutableMap.of(
                 "chatId", update.getMessage().getChatId(),
                 "initialUpdate", update
         );
-        startProcess(processId, env);
+        return startProcess(processId, env);
     }
 
     public ProcessInstance startProcess(String processId, Map<String, Object> env) {
         Object chatIdObject = env.get("chatId");
 
         if (chatIdObject != null) {
-            Long chatId = ((Number)chatIdObject).longValue();
+            Long chatId = ((Number) chatIdObject).longValue();
             saveProcessIdInChat(chatId, processId);
         } else {
             System.err.println("No chat id for process " + processId);
         }
 
         return runtimeService.startProcessInstanceByKey(processId, env);
+    }
+
+    public void deleteProcessInstance(String processInstanceId, String deleteReason) {
+        runtimeService.deleteProcessInstance(processInstanceId, deleteReason);
     }
 }
