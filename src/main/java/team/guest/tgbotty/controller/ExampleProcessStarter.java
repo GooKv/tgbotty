@@ -46,4 +46,16 @@ public class ExampleProcessStarter {
         chatRepository.save(chat);
     }
 
+
+    public void startProcess(String processId, Update update) {
+        Map<String, Object> env = ImmutableMap.of(
+                "chatId", update.getMessage().getChatId(),
+                "initialUpdate", update
+        );
+        startProcess(processId, env);
+    }
+
+    public ProcessInstance startProcess(String processId, Map<String, Object> env) {
+        return runtimeService.startProcessInstanceByKey(processId, env);
+    }
 }
