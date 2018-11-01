@@ -17,6 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import team.guest.tgbotty.dao.ChatRepository;
 import team.guest.tgbotty.entity.Chat;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -27,16 +28,19 @@ public class ExampleProcessStarter {
     private final TaskService taskService;
     private final FormService formService;
     private final ChatRepository chatRepository;
+    private final EntityManager entityManager;
 
     @Autowired
     public ExampleProcessStarter(RuntimeService runtimeService,
                                  TaskService taskService,
                                  FormService formService,
-                                 ChatRepository chatRepository) {
+                                 ChatRepository chatRepository,
+                                 EntityManager entityManager) {
         this.runtimeService = runtimeService;
         this.taskService = taskService;
         this.formService = formService;
         this.chatRepository = chatRepository;
+        this.entityManager = entityManager;
     }
 
     private List<Task> getTaskList() {
@@ -119,8 +123,16 @@ public class ExampleProcessStarter {
                 @Override
                 public void onEvent(ActivitiEvent event) {
                     if (event.getType() == ActivitiEventType.PROCESS_COMPLETED && Objects.equals(event.getProcessInstanceId(), processId)) {
-                        chatRepository.findByChatId(chatId)
-                                .ifPresent(chat -> chat.setActiveProcessId(null));
+                        try {
+                            entityManager.getTransaction().begin();
+                            chatRepository.findByChatId(chatId)
+                                    .ifPresent(chat -> chat.setActiveProcessId(null));
+                            entityManager.getTransaction().commit();
+                        } catch (Exception e) {
+                            if (entityManager.getTransaction().isActive()) {
+                                entityManager.getTransaction().rollback();
+                            }
+                        }
                     }
                 }
 
