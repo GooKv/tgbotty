@@ -115,6 +115,7 @@ public class CustomTgRestController {
         Chat chat = chatRepository.findByChatId(chatId).orElseThrow(() -> new NoChatFoundException(chatId));
         exampleProcessStarter.deleteProcessInstance(chat.getActiveProcessId(), "Supporter interrupt dialog");
         chat.setActiveProcessId(null);
+        chat.setDialogMode(true);
     }
 
     public String assignRequest(Long chatId) {
@@ -279,6 +280,11 @@ public class CustomTgRestController {
             }
         }
 
+        if(chat.getDialogMode()) {
+            saveChatInfoCustomer(chatId, update, null);
+            return null;
+        }
+        
         if (!callbacks.containsKey(chatId)) {
             // new dialog
             startProcess(chatId, "help", update);
@@ -301,6 +307,7 @@ public class CustomTgRestController {
 
     private void startProcess(Long chatId, String processSchemeId, Update update) {
         ProcessInstance processInstance = exampleProcessStarter.startProcess(processSchemeId, update);
+        getOrCreateChat(chatId).setDialogMode(false);
         saveChat(chatId, processInstance.getId(), update);
     }
 

@@ -26,7 +26,9 @@ public class Chat {
     @ElementCollection
     @OneToMany(mappedBy ="chat")
     private List<Request> chatRequests = new ArrayList<>();
-
+    @Column
+    private Boolean dialogMode = false;
+    
     protected Chat() {
     }
 
@@ -86,12 +88,19 @@ public class Chat {
         this.chatRequests = chatRequests;
     }
 
+    public void setDialogMode(boolean value) {
+        this.dialogMode = value;
+    }
+    
+    public Boolean getDialogMode() {
+        return this.dialogMode;
+    }
+    
     @Override
     public String toString() {
         return String.format(
                 "Chat[id=%d, activeProcessId='%s']",
                 id, activeProcessId);
     }
-
-
+    
 }
