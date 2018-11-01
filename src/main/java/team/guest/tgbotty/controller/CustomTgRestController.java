@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.WebhookBot;
 import team.guest.tgbotty.bot.callbacks.BotKeyboardCallback;
@@ -106,12 +105,12 @@ public class CustomTgRestController {
         return exampleProcessStarter.startProcess(processName, env).getId();
     }
 
-    public void registerKeyboardCallback(Message message, BotKeyboardCallback callback) {
+    public void registerKeyboardCallback(org.telegram.telegrambots.meta.api.objects.Message message, BotKeyboardCallback callback) {
         keyboardCallbacks.put(Pair.of(message.getChatId(), message.getMessageId()), callback);
     }
 
     private BotApiMethod handleCallbackQueryUpdate(CallbackQuery callbackQuery) {
-        Message originalMessage = callbackQuery.getMessage();
+        org.telegram.telegrambots.meta.api.objects.Message originalMessage = callbackQuery.getMessage();
         if(originalMessage == null) {
             LOGGER.warn("There are no original message for callback");
             return null;
