@@ -51,9 +51,8 @@ public class ExampleProcessStarter {
                 "chatId", chatId,
                 "initialUpdate", update
         );
-        ProcessInstance processInstance = runtimeService
-                .startProcessInstanceByKey("repeat-message-process", env);
-        saveProcessIdInChat(chatId, processInstance.getProcessDefinitionId());
+
+        startProcess("repeat-message-process", env);
     }
 
     private void saveProcessIdInChat(Long chatId, String processId) {
@@ -104,6 +103,13 @@ public class ExampleProcessStarter {
     }
 
     public ProcessInstance startProcess(String processId, Map<String, Object> env) {
+        Long chatId = (Long) env.get("chatId");
+        if (chatId != null) {
+            saveProcessIdInChat(chatId, processId);
+        } else {
+            System.err.println("No chat id for process " + processId);
+        }
+
         return runtimeService.startProcessInstanceByKey(processId, env);
     }
 }
