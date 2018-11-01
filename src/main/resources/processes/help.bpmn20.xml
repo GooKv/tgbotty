@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions
+        xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:activiti="http://activiti.org/bpmn"
+        targetNamespace="Examples">
+
+    <process id="help" name="help" isExecutable="true">
+        <startEvent id="startHelp"/>
+        <sequenceFlow sourceRef="startHelp" targetRef="setupInitOptions"/>
+        <serviceTask id="setupInitOptions"
+                     activiti:expression="#{bot.sendOptions(execution, chatId, 'К чему относится ваша проблема?', 'initAnswer', 'vsp', 'Обслуживание в банкомате', 'terminal', 'Банкоматы', 'cards', 'Карты', 'bonuses', 'Бонусы', 'cabinet', 'Личный кабинет')}"/>
+        <sequenceFlow sourceRef="setupInitOptions" targetRef="selectInitialOption"/>
+        <userTask id="selectInitialOption" />
+        <sequenceFlow sourceRef="selectInitialOption" targetRef="initialOptionSelected"/>
+        <exclusiveGateway id="initialOptionSelected"/>
+        <sequenceFlow sourceRef="initialOptionSelected" targetRef="setupVspOptions">
+            <conditionExpression xsi:type="tFormalExpression">#{initAnswer == "vsp"}</conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow sourceRef="initialOptionSelected" targetRef="setupInitOptions">
+            <conditionExpression xsi:type="tFormalExpression">
+                #{!initAnswerOptions.containsKey(initAnswer)}
+            </conditionExpression>
+        </sequenceFlow>
+        <serviceTask id="setupVspOptions"
+                     activiti:expression="#{bot.sendOptions(execution, chatId, 'Уточнение отделения', 'vspChoose', 'vspNumber', '№ отделения', 'address', 'Адрес отделения', 'geolocation', 'Геопозиция')}"/>
+        <sequenceFlow sourceRef="setupVspOptions" targetRef="selectVspOption"/>
+        <userTask id="selectVspOption" />
+        <sequenceFlow sourceRef="selectVspOption" targetRef="endHelp"/>
+
+        <endEvent id="endHelp"/>
+    </process>
+
+</definitions>
