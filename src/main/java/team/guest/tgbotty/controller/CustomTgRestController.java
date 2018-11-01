@@ -19,8 +19,10 @@ import team.guest.tgbotty.bot.callbacks.BotMessageCallback;
 import team.guest.tgbotty.bot.callbacks.IBotCallback;
 import team.guest.tgbotty.dao.ChatMessageRepository;
 import team.guest.tgbotty.dao.ChatRepository;
+import team.guest.tgbotty.dao.RequestRepository;
 import team.guest.tgbotty.entity.Chat;
 import team.guest.tgbotty.entity.ChatMessage;
+import team.guest.tgbotty.entity.Request;
 import team.guest.tgbotty.entity.SenderType;
 
 import java.sql.Timestamp;
@@ -40,6 +42,7 @@ public class CustomTgRestController {
     private final Map<String, WebhookBot> registeredBots;
     private final ChatRepository chatRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final RequestRepository requestRepository;
     private static final String START_PROCESS_COMMAND = "/sp";
     private static final String HELP_COMMAND = "/help";
     private final AbsSender sender;
@@ -51,10 +54,11 @@ public class CustomTgRestController {
     public CustomTgRestController(ExampleProcessStarter exampleProcessStarter,
                                   ChatRepository chatRepository,
                                   ChatMessageRepository chatMessageRepository,
-                                  AbsSender sender, WebhookBot... webHookBots) {
+                                  RequestRepository requestRepository, AbsSender sender, WebhookBot... webHookBots) {
         this.exampleProcessStarter = exampleProcessStarter;
         this.chatRepository = chatRepository;
         this.chatMessageRepository = chatMessageRepository;
+        this.requestRepository = requestRepository;
         this.sender = sender;
         registeredBots = Arrays.stream(webHookBots)
                 .collect(Collectors.toMap(WebhookBot::getBotPath, Function.identity()));
@@ -105,6 +109,26 @@ public class CustomTgRestController {
         exampleProcessStarter.deleteProcessInstance(chat.getActiveProcessId(), "Supporter interrupt dialog");
     }
 
+    public String assignRequest(Long chatId) {
+        Chat chat = chatRepository.findByChatId(chatId).orElseThrow(() -> new NoChatFoundException(chatId));
+        String requestNumber = calculateRequestNumber(chat);
+        Request request = new Request(requestNumber, "text");
+        requestRepository.save(request);
+        List<Request> chatRequests = chat.getChatRequests();
+        chatRequests.add(request);
+        chat.setChatRequests(chatRequests);
+        return requestNumber;
+    }
+
+    private String calculateRequestNumber(Chat chat) {
+        List<ChatMessage> chatMessages = chat.getChatMessages();
+        if (chatMessages.isEmpty()) {
+            return String.valueOf(chat.getChatId() * new Random().nextLong());
+        }
+        ChatMessage message = chatMessages.get(chatMessages.size() - 1);
+        return String.valueOf(message.getSendTime().getTime());
+    }
+
     private String[] getArguments(String messageText, String command) {
         return messageText.substring(command.length()).trim().split(" ");
     }
@@ -131,7 +155,7 @@ public class CustomTgRestController {
         if (message == null) message = updateMessage.getText();
 
         saveChatInfo(chatId, message, new Timestamp(updateMessage.getDate() * 1000L),
-                formUserName(updateMessage.getFrom()), SenderType.CUSTOMER);
+                     formUserName(updateMessage.getFrom()), SenderType.CUSTOMER);
     }
 
     public String formUserName(User user) {

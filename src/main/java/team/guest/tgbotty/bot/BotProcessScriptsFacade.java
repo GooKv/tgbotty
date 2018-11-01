@@ -116,8 +116,9 @@ public class BotProcessScriptsFacade {
         });
     }
     
-    public void assignRequest(Long chatId) {
-        
+    public void assignRequest(Long chatId) throws TelegramApiException {
+        String request = customTgRestController.assignRequest(chatId);
+        sendSimpleMessage(chatId, "Спасибо за обращение. Ваша заявка принята в работу. Номер вашей заявки: " + request);
     }
     
 }

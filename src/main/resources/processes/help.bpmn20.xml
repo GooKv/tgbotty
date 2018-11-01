@@ -75,7 +75,8 @@
         <sequenceFlow sourceRef="enterCommentTask" targetRef="endHelp"/>
 
         <serviceTask id="createRequest"
-                     activiti:expression="#{bot.requestString(chatId, 'Пока', 'terminalNumber')}"/>
+                     activiti:expression="#{bot.assignRequest(chatId)}"/>
+        <sequenceFlow sourceRef="createRequest" targetRef="endHelp"/>
 
         <endEvent id="endHelp"/>
     </process>
