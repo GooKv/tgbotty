@@ -13,7 +13,7 @@ public class Request {
     private String number;
     @Column(name = "text")
     private String text;
-    @Column(name = "chat")
+    @ManyToOne
     private Chat chat;
 
     protected Request() {
