@@ -20,6 +20,7 @@ public class ChatConverter {
         MessageDto messageDto = new MessageDto();
         messageDto.setMessage(chatMessage.getText());
         messageDto.setSender(chatMessage.getSender());
+        messageDto.setSenderType(chatMessage.getSenderType().name());
         messageDto.setTime(chatMessage.getSendTime().toString());
         messageDto.setMessageId(chatMessage.getId());
         return messageDto;

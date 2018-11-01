@@ -18,6 +18,7 @@ import team.guest.tgbotty.dao.ChatMessageRepository;
 import team.guest.tgbotty.dao.ChatRepository;
 import team.guest.tgbotty.entity.Chat;
 import team.guest.tgbotty.entity.ChatMessage;
+import team.guest.tgbotty.entity.SenderType;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -111,7 +112,7 @@ public class CustomTgRestController {
         ChatMessage chatMessage = new ChatMessage(chat,
                                                   updateMessage.getText(),
                                                   timestamp,
-                                                  updateMessage.getFrom().getBot() ? "bot" : updateMessage.getFrom().getUserName());
+                                                  updateMessage.getFrom().getUserName(), SenderType.CUSTOMER);
         chatMessageRepository.save(chatMessage);
         chatMessages.add(chatMessage);
         chat.setChatMessages(chatMessages);
