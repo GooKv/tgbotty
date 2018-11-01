@@ -58,7 +58,9 @@ public class BotProcessScriptsFacade {
                 (message, option) -> {
                     try {
                         sendSimpleMessage(message.getChatId(), "Received " + option);
-                    } catch (TelegramApiException ignored) { }
+                    } catch (TelegramApiException ignored) {
+                        System.err.println(ignored.getMessage());
+                    }
                 });
     }
 }

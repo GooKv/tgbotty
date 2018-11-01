@@ -1,5 +1,7 @@
 package team.guest.tgbotty.entity;
 
+import org.hibernate.annotations.Cascade;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +19,7 @@ public class Chat {
     private List<String> processList = new ArrayList<>();
     @Column
     private String activeProcessId;
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
     @ElementCollection
     @CollectionTable(name = "message", joinColumns = @JoinColumn(name = "chat_id"))
     private List<Message> messages = new ArrayList<>();
