@@ -24,8 +24,9 @@ class ChatWindow extends Component {
 
   componentDidMount() {
     const getChatPeriodiocally = () => {
+      clearTimeout(this.getChatRequestTimerId);
       this.getChatMessages();
-      setTimeout(getChatPeriodiocally, 1000);
+      this.getChatRequestTimerId = setTimeout(getChatPeriodiocally, 1000);
     };
 
     this.getChatMessages();
