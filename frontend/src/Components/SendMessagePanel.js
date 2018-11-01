@@ -93,7 +93,7 @@ class SendMessagePanel extends Component {
             >
               <Button
                 shape="circle"
-                icon="search"
+                icon="smile"
                 className="pick-emoji-button"
               />
             </Popover>
