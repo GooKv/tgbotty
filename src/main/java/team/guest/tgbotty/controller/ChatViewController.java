@@ -42,7 +42,7 @@ public class ChatViewController {
     @RequestMapping(value = "view/{id}/sendMessage", method = RequestMethod.POST )
     @ResponseBody
     public void sendMessage(@PathVariable("id") long id, String message) {
-        customTgRestController.sendMessageFromSupporter(message);
+        customTgRestController.sendMessageFromSupporter(id, message);
     }
 
     @RequestMapping("view/request/")

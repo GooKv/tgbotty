@@ -9,7 +9,7 @@
         <startEvent id="startHelp"/>
         <sequenceFlow sourceRef="startHelp" targetRef="setupInitOptions"/>
         <serviceTask id="setupInitOptions"
-                     activiti:expression="#{bot.sendOptions(execution, chatId, 'К чему относится ваша проблема?', 'initAnswer', 'vsp', 'Обслуживание в банкомате', 'terminal', 'Банкоматы', 'cards', 'Карты', 'bonuses', 'Бонусы', 'cabinet', 'Личный кабинет')}"/>
+                     activiti:expression="#{bot.sendOptions(execution, chatId, 'К чему относится ваша проблема?', 'initAnswer', 'vsp', 'Обслуживание в отделении', 'terminal', 'Банкоматы', 'cards', 'Карты', 'bonuses', 'Бонусы', 'cabinet', 'Личный кабинет')}"/>
         <sequenceFlow sourceRef="setupInitOptions" targetRef="selectInitialOption"/>
         <userTask id="selectInitialOption" />
         <sequenceFlow sourceRef="selectInitialOption" targetRef="initialOptionSelected"/>
@@ -17,12 +17,17 @@
         <sequenceFlow sourceRef="initialOptionSelected" targetRef="setupVspOptions">
             <conditionExpression xsi:type="tFormalExpression">#{initAnswer == "vsp"}</conditionExpression>
         </sequenceFlow>
+        <sequenceFlow sourceRef="initialOptionSelected" targetRef="setupTerminalOptions">
+            <conditionExpression xsi:type="tFormalExpression">#{initAnswer == "terminal"}</conditionExpression>
+        </sequenceFlow>
         <sequenceFlow sourceRef="initialOptionSelected" targetRef="setupInitOptions">
             <conditionExpression xsi:type="tFormalExpression">
                 #{!initAnswerOptions.containsKey(initAnswer)}
             </conditionExpression>
         </sequenceFlow>
         <serviceTask id="setupVspOptions"
+                     activiti:expression="#{bot.sendOptions(execution, chatId, 'Уточнение отделения', 'vspChoose', 'vspNumber', '№ отделения', 'address', 'Адрес отделения', 'geolocation', 'Геопозиция')}"/>
+        <serviceTask id="setupTerminalOptions"
                      activiti:expression="#{bot.sendOptions(execution, chatId, 'Уточнение отделения', 'vspChoose', 'vspNumber', '№ отделения', 'address', 'Адрес отделения', 'geolocation', 'Геопозиция')}"/>
         <sequenceFlow sourceRef="setupVspOptions" targetRef="selectVspOption"/>
         <userTask id="selectVspOption" />

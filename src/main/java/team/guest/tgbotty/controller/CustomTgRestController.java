@@ -93,7 +93,7 @@ public class CustomTgRestController {
         }
     }
 
-    public void sendMessageFromSupporter(String message) {
+    public void sendMessageFromSupporter(Long id, String message) {
         
     }
 
