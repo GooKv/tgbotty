@@ -58,7 +58,7 @@ public class ExampleProcessStarter {
     private void saveProcessIdInChat(Long chatId, String processId) {
 //        Chat chat = chatRepository.findByChatId(chatId).orElse(chatRepository.save(new Chat(chatId)));
         Chat chat = chatRepository.findByChatId(chatId).orElseThrow(() -> new NoChatFoundException(chatId));
-        chat.setActiveProcessId(processId);
+//        chat.setActiveProcessId(processId);
         List<String> processList = chat.getProcessList();
         processList.add(processId);
         chat.setProcessList(processList);
@@ -102,17 +102,19 @@ public class ExampleProcessStarter {
         return startProcess(processId, env);
     }
 
-    public ProcessInstance startProcess(String processId, Map<String, Object> env) {
+    public ProcessInstance startProcess(String processName, Map<String, Object> env) {
         Object chatIdObject = env.get("chatId");
+
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processName, env);
 
         if (chatIdObject != null) {
             Long chatId = ((Number) chatIdObject).longValue();
-            saveProcessIdInChat(chatId, processId);
+            saveProcessIdInChat(chatId, processInstance.getId());
         } else {
-            System.err.println("No chat id for process " + processId);
+            System.err.println("No chat id for process " + processName);
         }
 
-        return runtimeService.startProcessInstanceByKey(processId, env);
+        return processInstance;
     }
 
     public void deleteProcessInstance(String processInstanceId, String deleteReason) {
