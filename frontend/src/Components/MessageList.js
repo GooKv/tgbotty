@@ -5,9 +5,28 @@ import { Layout, List, Avatar } from "antd";
 const { Content } = Layout;
 
 const userAvatarStyle = { backgroundColor: "#87d068" };
-const botAvatarStyle = { backgroundColor: "#05af32" };
+const employeeAvatarStyle = { backgroundColor: "#87d068" };
+const botAvatarStyle = { backgroundColor: "#4286f4" };
 
-const isUser = it => it.sender !== "bot";
+const BotAvatar = () => (
+  <Avatar style={botAvatarStyle} icon="robot" />
+);
+const UserAvatar = () => <Avatar style={userAvatarStyle} icon="user" />;
+const EmployeeAvatar = () => <Avatar style={employeeAvatarStyle}>ВЫ</Avatar>;
+
+const renderAvatar = user => {
+  switch (user.senderType) {
+    case "BOT":
+      return <BotAvatar />;
+    case "CUSTOMER":
+      return <UserAvatar />;
+    case "SUPPORT":
+    default:
+      return <EmployeeAvatar />;
+  }
+};
+
+const isUser = user => user.senderType === "CUSTOMER";
 
 class MessageList extends Component {
   render() {
@@ -21,15 +40,9 @@ class MessageList extends Component {
           renderItem={item => (
             <List.Item>
               <List.Item.Meta
-                avatar={
-                  <Avatar
-                    style={isUser(item) ? userAvatarStyle : botAvatarStyle}
-                    icon={!isUser(item) && "user"}
-                  >
-                    {isUser(item) && item.sender.charAt(0)}
-                  </Avatar>
-                }
-                title={item.sender}
+                className={!isUser(item) && "message-right"}
+                avatar={renderAvatar(item)}
+                title={item.sender || ""}
                 description={item.message}
               />
             </List.Item>

@@ -40,3 +40,12 @@ $main-header-height: 50px;
   height: 100vh;
   overflow: auto;
 }
+
+.message-right {
+  flex-direction: row-reverse;
+  text-align: right;
+  .ant-list-item-meta-avatar {
+    margin-left: 16px;
+    margin-right: 0px;
+  }
+}
