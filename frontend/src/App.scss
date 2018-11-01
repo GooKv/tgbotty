@@ -1,0 +1,39 @@
+$main-header-height: 50px;
+$main-footer-height: 48px;
+
+.main-layout {
+  height: 100vh;
+  width: 100vw;
+}
+
+.main-header {
+  background: blue;
+  color: white;
+  height: $main-header-height;
+}
+
+.main-footer {
+  background: red;
+  height: $main-footer-height;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.main-layout {
+  background: green;
+  position: relative;
+}
+
+.main-content {
+  width: 100%;
+  height: 100%;
+  background: purple;
+  overflow: auto;
+}
+
+.main-sider {
+    height: 100vh;
+    overflow: auto;
+}
