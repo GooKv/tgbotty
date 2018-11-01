@@ -4,6 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import org.activiti.engine.FormService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.delegate.event.ActivitiEvent;
+import org.activiti.engine.delegate.event.ActivitiEventListener;
+import org.activiti.engine.delegate.event.ActivitiEventType;
 import org.activiti.engine.form.FormData;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -16,6 +19,7 @@ import team.guest.tgbotty.entity.Chat;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class ExampleProcessStarter {
@@ -109,7 +113,22 @@ public class ExampleProcessStarter {
 
         if (chatIdObject != null) {
             Long chatId = ((Number) chatIdObject).longValue();
-            saveProcessIdInChat(chatId, processInstance.getId());
+            final String processId = processInstance.getId();
+            saveProcessIdInChat(chatId, processId);
+            runtimeService.addEventListener(new ActivitiEventListener() {
+                @Override
+                public void onEvent(ActivitiEvent event) {
+                    if (event.getType() == ActivitiEventType.PROCESS_COMPLETED && Objects.equals(event.getProcessInstanceId(), processId)) {
+                        chatRepository.findByChatId(chatId)
+                                .ifPresent(chat -> chat.setActiveProcessId(null));
+                    }
+                }
+
+                @Override
+                public boolean isFailOnException() {
+                    return false;
+                }
+            });
         } else {
             System.err.println("No chat id for process " + processName);
         }
@@ -118,10 +137,6 @@ public class ExampleProcessStarter {
     }
 
     public void deleteProcessInstance(String processInstanceId, String deleteReason) {
-        try {
-            runtimeService.deleteProcessInstance(processInstanceId, deleteReason);
-        } catch (Exception ex) {
-            System.err.println(ex.getMessage());
-        }
+        runtimeService.deleteProcessInstance(processInstanceId, deleteReason);
     }
 }
