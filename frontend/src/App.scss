@@ -10,6 +10,10 @@ $main-footer-height: 48px;
   background: blue;
   color: white;
   height: $main-header-height;
+
+  * {
+    color: white;
+  }
 }
 
 .main-footer {
@@ -34,6 +38,6 @@ $main-footer-height: 48px;
 }
 
 .main-sider {
-    height: 100vh;
-    overflow: auto;
+  height: 100vh;
+  overflow: auto;
 }
