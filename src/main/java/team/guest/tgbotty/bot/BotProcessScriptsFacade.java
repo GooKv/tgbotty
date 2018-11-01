@@ -116,4 +116,8 @@ public class BotProcessScriptsFacade {
         });
     }
     
+    public void assignRequest(Long chatId) {
+        
+    }
+    
 }
