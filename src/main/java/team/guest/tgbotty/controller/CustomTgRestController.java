@@ -177,7 +177,7 @@ public class CustomTgRestController {
         GetFile getFileMethod = new GetFile();
         getFileMethod.setFileId(photo.getFileId());
 
-        File file = sender.execute(new GetFile());
+        File file = sender.execute(getFileMethod);
         return file.getFileUrl(token);
     }
     
