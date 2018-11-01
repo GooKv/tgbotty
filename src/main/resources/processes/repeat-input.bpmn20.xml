@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions
+        xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+        xmlns:activiti="http://activiti.org/bpmn"
+        targetNamespace="Examples">
+
+    <process id="repeat-message-process" name="repeat-message-process" isExecutable="true">
+        <startEvent id="startEvent" name="startEvent"/>
+        <sequenceFlow id="sequence-flow-1" sourceRef="startEvent" targetRef="repeat-message"/>
+        <serviceTask id="repeat-message" name="Repeat message" activiti:expression="#{bot.sendSimpleMessage(chatId, initialUpdate.getMessage().getText())}"/>
+        <sequenceFlow id="sequence-flow-2" sourceRef="repeat-message" targetRef="endEvent"/>
+        <endEvent id="endEvent" name="endEvent"/>
+    </process>
+
+</definitions>
