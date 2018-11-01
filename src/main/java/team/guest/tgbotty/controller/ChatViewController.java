@@ -23,12 +23,40 @@ public class ChatViewController {
     private static final Map<Long, ChatDto> chats = ImmutableMap.of(
             1L, new ChatDto(1L,
                             "chat with babushka",
-                            Arrays.asList(new MessageDto("babushka", "ololo"),
-                                          new MessageDto("bot", "mes from bot"))),
+                            Arrays.asList(new MessageDto("babushka",
+                                                         "ololo",
+                                                         15L,
+                                                         "12" +
+                                                                 ".10" +
+                                                                 ".2018 " +
+                                                                 "12:00" +
+                                                                 ":09"),
+                                          new MessageDto("bot",
+                                                         "mes from bot",
+                                                         23L,
+                                                         "12" +
+                                                                 ".10" +
+                                                                 ".2018 " +
+                                                                 "12:00" +
+                                                                 ":06"))),
             2L, new ChatDto(1L,
                             "chat with dedushka",
-                            Arrays.asList(new MessageDto("dedushka", "alala"),
-                                          new MessageDto("bot", "mes from bot"))));
+                            Arrays.asList(new MessageDto("dedushka",
+                                                         "alala",
+                                                         155L,
+                                                         "12" +
+                                                                 ".10" +
+                                                                 ".2018 " +
+                                                                 "12:00" +
+                                                                 ":49"),
+                                          new MessageDto("bot",
+                                                         "mes from bot",
+                                                         123L,
+                                                         "12" +
+                                                                 ".10" +
+                                                                 ".2018 " +
+                                                                 "12:00" +
+                                                                 ":54"))));
 
     private final ChatRepository chatRepository;
 
@@ -51,10 +79,24 @@ public class ChatViewController {
     @ResponseBody
     public ChatDto getChatInfo(@PathVariable("id") long id) {
         Chat chat = chatRepository.findByChatId(id).orElseThrow(() -> new NoChatFoundException(id));
-        return new ChatDto(chat.getChatId(), chat.getActiveProcessId(), Arrays.asList(new MessageDto("dedushka",
-                                                                                                    "alala"),
-                                                                                 new MessageDto("bot",
-                                                                                                "mes from bot")));
+        return new ChatDto(chat.getChatId(),
+                           chat.getActiveProcessId(),
+                           Arrays.asList(new MessageDto("dedushka",
+                                                        "alala",
+                                                        12L,
+                                                        "12" +
+                                                                ".10" +
+                                                                ".2018 " +
+                                                                "12:00" +
+                                                                ":00"),
+                                         new MessageDto("bot",
+                                                        "mes from bot",
+                                                        13L,
+                                                        "12" +
+                                                                ".10" +
+                                                                ".2018 " +
+                                                                "12:00" +
+                                                                ":05")));
     }
 
 
