@@ -42,7 +42,6 @@ public class ExampleProcessStarter {
         List<String> processList = chat.getProcessList();
         processList.add(processId);
         chat.setProcessList(processList);
-        chat.setProcessList(processList);
         chatRepository.save(chat);
     }
 
