@@ -176,7 +176,9 @@ public class CustomTgRestController {
     
     private BotApiMethod handleChatMessage(Update update, Message message) { 
         Long chatId = message.getChatId();
-        
+
+        saveChatInfoCustomer(chatId, update, null);
+
         if(message.isCommand()) {
             String messageText = update.getMessage().getText();
             Command command = Command.fromMessage(messageText);
@@ -202,7 +204,6 @@ public class CustomTgRestController {
         }
         
         BotMessageCallback messageCallback = (BotMessageCallback)callback;
-        saveChatInfoCustomer(chatId, update, null);
 
         callbacks.remove(chatId);
         messageCallback.answerReceived(chatId, message.getFrom(), message.getText());
