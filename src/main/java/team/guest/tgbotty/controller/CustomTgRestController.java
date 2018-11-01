@@ -1,12 +1,16 @@
 package team.guest.tgbotty.controller;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -30,6 +34,8 @@ import team.guest.tgbotty.entity.ChatMessage;
 import team.guest.tgbotty.entity.Request;
 import team.guest.tgbotty.entity.SenderType;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.function.Function;
@@ -113,17 +119,21 @@ public class CustomTgRestController {
     }
 
     @Transactional
-    public void startDialogWithHuman(Long chatId) {
+    public void startDialogWithHuman(Long chatId) throws TelegramApiException {
         Chat chat = chatRepository.findByChatId(chatId).orElseThrow(() -> new NoChatFoundException(chatId));
         exampleProcessStarter.deleteProcessInstance(chat.getActiveProcessId(), "Supporter interrupt dialog");
+        
         chat.setActiveProcessId(null);
         chat.setDialogMode(true);
+        
+        sendMessageFromSupporter(chatId, "Сотрудник подключился к диалогу");
     }
 
     public String assignRequest(Long chatId) {
         Chat chat = chatRepository.findByChatId(chatId).orElseThrow(() -> new NoChatFoundException(chatId));
         String requestNumber = calculateRequestNumber(chat);
         Request request = new Request(requestNumber, "text");
+        request.setChat(chat);
         requestRepository.save(request);
         List<Request> chatRequests = chat.getChatRequests();
         chatRequests.add(request);
@@ -276,9 +286,10 @@ public class CustomTgRestController {
             switch (command.getName()) {
                 case START_PROCESS_COMMAND:
                     startProcess(chatId, command.getArguments()[0], update);
-                    break;
+                    return null;
                 case HELP_COMMAND:
                     startProcess(chatId, "help", update);
+                    return null;
             }
         }
 
@@ -308,8 +319,10 @@ public class CustomTgRestController {
     }
 
     private void startProcess(Long chatId, String processSchemeId, Update update) {
-        ProcessInstance processInstance = exampleProcessStarter.startProcess(processSchemeId, update);
         getOrCreateChat(chatId).setDialogMode(false);
+        saveChatInfoCustomer(chatId, update, "Пользователь подключился к диалогу");
+        
+        ProcessInstance processInstance = exampleProcessStarter.startProcess(processSchemeId, update);
         saveChat(chatId, processInstance.getId(), update);
     }
 
@@ -326,10 +339,20 @@ public class CustomTgRestController {
         }
 
         BotLocationCallback locationCallback = (BotLocationCallback) callback;
-
+        
         Location loc = message.getLocation();
-        String value = "{ " + loc.getLatitude() + ", " + loc.getLongitude() + " }";
-
+        
+        String value;
+        try {
+            value = Resources.toString(CustomTgRestController.class.getResource("/map.html"), Charsets.UTF_8);
+            value = value.replaceAll("\\$Lat\\$", loc.getLatitude().toString());
+            value = value.replaceAll("\\$Lon\\$", loc.getLatitude().toString());
+            value = value.replaceAll("\\$Id\\$", message.getMessageId().toString());
+        } catch (IOException e) {
+            value = "{ " + loc.getLatitude() + ", " + loc.getLongitude() + " }";
+            LOGGER.error("Error loading map", e);
+        }
+        
         saveChatInfoCustomer(chatId, update, value);
 
         callbacks.remove(chatId);

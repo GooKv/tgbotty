@@ -43,7 +43,7 @@ public class ChatViewController {
 
     @RequestMapping("view/{id}/startDialog")
     @ResponseBody
-    public void startDialog(@PathVariable("id") long id) {
+    public void startDialog(@PathVariable("id") long id) throws TelegramApiException {
         customTgRestController.startDialogWithHuman(id);
     }
 
