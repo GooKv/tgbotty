@@ -32,7 +32,7 @@ public class ExampleProcessStarter {
         );
         ProcessInstance processInstance = runtimeService
                 .startProcessInstanceByKey("repeat-message-process", env);
-        saveProcessIdInChat(chatId, processInstance.getProcessDefinitionId());
+        //saveProcessIdInChat(chatId, processInstance.getProcessDefinitionId());
     }
 
     private void saveProcessIdInChat(Long chatId, String processId) {
