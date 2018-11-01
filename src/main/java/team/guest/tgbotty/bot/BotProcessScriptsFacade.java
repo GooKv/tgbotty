@@ -63,7 +63,8 @@ public class BotProcessScriptsFacade {
             @Override
             public void answerReceived(Long chatId, User user, String received) {
                 customTgRestController.saveChatInfo(chatId, map.get(received), 
-                        new Timestamp(System.currentTimeMillis()), user.getUserName(), SenderType.CUSTOMER);
+                        new Timestamp(System.currentTimeMillis()), customTgRestController.formUserName(user), 
+                        SenderType.CUSTOMER);
                 processStarter.completeUserTask(chatId, ImmutableMap.of(key, received));
             }
         });

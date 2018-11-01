@@ -12,7 +12,6 @@ import team.guest.tgbotty.entity.Chat;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Qualifier(value = "database")
@@ -38,10 +37,7 @@ public class ChatManagerDatabase implements ChatManager {
     @Override
     public ChatDto getChatInfo(long id) {
         Chat chat = chatRepository.findByChatId(id).orElseThrow(() -> new NoChatFoundException(id));
-        return new ChatDto(chat.getChatId(),
-                           chat.getActiveProcessId(),
-                           chat.getChatMessages().stream().map(chatConverter::convert).collect(Collectors.toList()),
-                           chat.getChatRequests().stream().map(chatConverter::convert).collect(Collectors.toList()));
+        return chatConverter.convertChat(chat);
     }
 
     @Override

@@ -3,6 +3,7 @@ package team.guest.tgbotty.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import team.guest.tgbotty.dto.ChatDto;
 import team.guest.tgbotty.dto.ChatViewDto;
 
@@ -41,8 +42,8 @@ public class ChatViewController {
 
     @RequestMapping(value = "view/{id}/sendMessage", method = RequestMethod.POST )
     @ResponseBody
-    public void sendMessage(@PathVariable("id") long id, String message) {
-        customTgRestController.sendMessageFromSupporter(message);
+    public void sendMessage(@PathVariable("id") long id, String message) throws TelegramApiException {
+        customTgRestController.sendMessageFromSupporter(id, message);
     }
 
     @RequestMapping("view/request/")

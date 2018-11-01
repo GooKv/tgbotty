@@ -8,10 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Location;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.bots.AbsSender;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.WebhookBot;
 import team.guest.tgbotty.bot.callbacks.BotKeyboardCallback;
 import team.guest.tgbotty.bot.callbacks.BotLocationCallback;
@@ -42,6 +41,7 @@ public class CustomTgRestController {
     private final ChatMessageRepository chatMessageRepository;
     private static final String START_PROCESS_COMMAND = "/sp";
     private static final String HELP_COMMAND = "/help";
+    private final AbsSender sender;
 
     //private Map<Pair<Long, Integer>, BotKeyboardCallback> keyboardCallbacks = new HashMap<>();
     private Map<Long, IBotCallback> callbacks = new HashMap<>();
@@ -50,10 +50,11 @@ public class CustomTgRestController {
     public CustomTgRestController(ExampleProcessStarter exampleProcessStarter,
                                   ChatRepository chatRepository,
                                   ChatMessageRepository chatMessageRepository,
-                                  WebhookBot... webHookBots) {
+                                  AbsSender sender, WebhookBot... webHookBots) {
         this.exampleProcessStarter = exampleProcessStarter;
         this.chatRepository = chatRepository;
         this.chatMessageRepository = chatMessageRepository;
+        this.sender = sender;
         registeredBots = Arrays.stream(webHookBots)
                 .collect(Collectors.toMap(WebhookBot::getBotPath, Function.identity()));
     }
@@ -93,8 +94,9 @@ public class CustomTgRestController {
         }
     }
 
-    public void sendMessageFromSupporter(String message) {
-        
+    public void sendMessageFromSupporter(Long chatId, String message) throws TelegramApiException {
+        Message sent = sender.execute(new SendMessage(chatId, message));
+        saveChatInfo(chatId, message, new Timestamp(sent.getDate() * 1000L), null, SenderType.SUPPORT);
     }
 
     public void startDialogWithHuman() {
@@ -115,7 +117,13 @@ public class CustomTgRestController {
         if(message == null) message = updateMessage.getText();
         
         saveChatInfo(chatId, message, new Timestamp(updateMessage.getDate() * 1000L), 
-                updateMessage.getFrom().getUserName(), SenderType.CUSTOMER);
+                formUserName(updateMessage.getFrom()), SenderType.CUSTOMER);
+    }
+    
+    public String formUserName(User user) {
+        String name = user.getFirstName();
+        if(user.getLastName() != null) name += " " + user.getLastName();
+        return name;
     }
     
     public void saveChatInfo(long chatId, String message, Timestamp timestamp, String username, SenderType senderType) {
@@ -176,7 +184,9 @@ public class CustomTgRestController {
     
     private BotApiMethod handleChatMessage(Update update, Message message) { 
         Long chatId = message.getChatId();
-        
+
+        saveChatInfoCustomer(chatId, update, null);
+
         if(message.isCommand()) {
             String messageText = update.getMessage().getText();
             Command command = Command.fromMessage(messageText);
@@ -202,7 +212,6 @@ public class CustomTgRestController {
         }
         
         BotMessageCallback messageCallback = (BotMessageCallback)callback;
-        saveChatInfoCustomer(chatId, update, null);
 
         callbacks.remove(chatId);
         messageCallback.answerReceived(chatId, message.getFrom(), message.getText());

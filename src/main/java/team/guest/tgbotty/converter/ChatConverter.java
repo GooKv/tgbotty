@@ -1,12 +1,13 @@
 package team.guest.tgbotty.converter;
 
 import org.springframework.stereotype.Service;
+import team.guest.tgbotty.dto.ChatDto;
 import team.guest.tgbotty.dto.ChatViewDto;
 import team.guest.tgbotty.dto.MessageDto;
-import team.guest.tgbotty.entity.Request;
 import team.guest.tgbotty.dto.RequestDto;
 import team.guest.tgbotty.entity.Chat;
 import team.guest.tgbotty.entity.ChatMessage;
+import team.guest.tgbotty.entity.Request;
 import team.guest.tgbotty.entity.SenderType;
 
 import java.util.List;
@@ -20,6 +21,15 @@ public class ChatConverter {
         chatViewDto.setDisplayName(constructDisplayName(chat));
         chatViewDto.setId(chat.getChatId());
         return chatViewDto;
+    }
+
+    public ChatDto convertChat(Chat chat) {
+        ChatDto chatDto = new ChatDto();
+        chatDto.setDisplayName(constructDisplayName(chat));
+        chatDto.setId(chat.getChatId());
+        chatDto.setMessagesDtoList(chat.getChatMessages().stream().map(this::convert).collect(Collectors.toList()));
+        chatDto.setRequestDtoList(chat.getChatRequests().stream().map(this::convert).collect(Collectors.toList()));
+        return chatDto;
     }
 
     private String constructDisplayName(Chat chat) {
