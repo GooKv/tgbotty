@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Layout, Icon, message, List } from "antd";
+import { Avatar } from "./Avatar";
 
 const { Sider } = Layout;
 
@@ -12,13 +13,6 @@ const getChats = () =>
       message.error("Не удалось получить список чатов");
       throw error;
     });
-
-const menuItemStyle = {
-  width: "100%",
-  height: "30px",
-  background: "yellowgreen",
-  margin: "10px 0px"
-};
 
 const defaultState = {
   chatList: []
@@ -60,17 +54,37 @@ class Menu extends Component {
         collapsible
         trigger={<Icon type="menu-fold" theme="outlined" />}
       >
-        <List
-          itemLayout="horizontal"
-          dataSource={chatList}
-          renderItem={chat => (
-            <Link to={`/chat/${chat.id}`} key={chat.id}>
-              <List.Item>
-                <div style={menuItemStyle}>{chat.displayName}</div>
-              </List.Item>
-            </Link>
-          )}
-        />
+        <h3 className="menu-header">Список чатов</h3>
+        <div className="menu-content">
+          <List
+            itemLayout="horizontal"
+            dataSource={chatList}
+            renderItem={chat => (
+              <Link
+                to={`/chat/${chat.id}`}
+                key={chat.id}
+                className="menu-item-wrapper"
+              >
+                <List.Item>
+                  <div className="menu-item">
+                    <div className="message-avatar">
+                    <Avatar user={chat.lastMessage} />
+                  </div>
+                  <div className="message-content">
+                    <div className="message-sender">
+                      {chat.lastMessage.sender || ""}
+                    </div>
+                    <div className="message-text">
+                      {chat.lastMessage.message}
+                    </div>
+                    <div className="message-date">{chat.lastMessage.time}</div>
+                  </div>
+                  </div>
+                </List.Item>
+              </Link>
+            )}
+          />
+        </div>
       </Sider>
     );
   }
