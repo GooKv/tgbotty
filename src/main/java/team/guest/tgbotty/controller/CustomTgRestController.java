@@ -73,10 +73,10 @@ public class CustomTgRestController {
                 return handleCallbackQueryUpdate(update.getCallbackQuery());
             }
 
-            if(update.hasMessage())
-                if(update.getMessage().hasText()) {
+            if (update.hasMessage())
+                if (update.getMessage().hasText()) {
                     return handleChatMessage(update, update.getMessage());
-                } else if(update.getMessage().hasLocation()) {
+                } else if (update.getMessage().hasLocation()) {
                     return handleLocation(update, update.getMessage());
                 } else {
                     return handleWrongUserAction(update.getMessage().getChatId());
@@ -85,9 +85,9 @@ public class CustomTgRestController {
             return null;
         } catch (Exception e) {
             LOGGER.error("Exception in custom controller", e);
-            if(update.hasMessage()) {
+            if (update.hasMessage()) {
                 String message = e.getClass().getName();
-                if(e.getMessage() != null) message += ": " + e.getMessage();
+                if (e.getMessage() != null) message += ": " + e.getMessage();
 
                 return new SendMessage(update.getMessage().getChatId(), message);
             }
@@ -97,11 +97,12 @@ public class CustomTgRestController {
 
     public void sendMessageFromSupporter(Long chatId, String message) throws TelegramApiException {
         Message sent = sender.execute(new SendMessage(chatId, message));
-saveChatInfo(chatId, message, new Timestamp(sent.getDate() * 1000L), null, SenderType.SUPPORT);
+        saveChatInfo(chatId, message, new Timestamp(sent.getDate() * 1000L), null, SenderType.SUPPORT);
     }
 
-    public void startDialogWithHuman() {
-
+    public void startDialogWithHuman(Long chatId) {
+        Chat chat = chatRepository.findByChatId(chatId).orElseThrow(() -> new NoChatFoundException(chatId));
+        exampleProcessStarter.deleteProcessInstance(chat.getActiveProcessId(), "Supporter interrupt dialog");
     }
 
     private String[] getArguments(String messageText, String command) {
@@ -127,7 +128,7 @@ saveChatInfo(chatId, message, new Timestamp(sent.getDate() * 1000L), null, Sende
 
     private void saveChatInfoCustomer(long chatId, Update update, String message) {
         Message updateMessage = update.getMessage();
-        if(message == null) message = updateMessage.getText();
+        if (message == null) message = updateMessage.getText();
 
         saveChatInfo(chatId, message, new Timestamp(updateMessage.getDate() * 1000L),
                 formUserName(updateMessage.getFrom()), SenderType.CUSTOMER);
@@ -135,7 +136,7 @@ saveChatInfo(chatId, message, new Timestamp(sent.getDate() * 1000L), null, Sende
 
     public String formUserName(User user) {
         String name = user.getFirstName();
-        if(user.getLastName() != null) name += " " + user.getLastName();
+        if (user.getLastName() != null) name += " " + user.getLastName();
         return name;
     }
 
@@ -176,19 +177,19 @@ saveChatInfo(chatId, message, new Timestamp(sent.getDate() * 1000L), null, Sende
         }
 
         Long chatId = originalMessage.getChatId();
-        if(!callbacks.containsKey(chatId)) {
+        if (!callbacks.containsKey(chatId)) {
             LOGGER.warn("Received message with no registered callback");
             return answerCallbackQuery;
         }
 
         IBotCallback callback = callbacks.get(chatId);
-        if(!(callback instanceof BotKeyboardCallback)) {
+        if (!(callback instanceof BotKeyboardCallback)) {
             //handleWrongUserAction(originalMessage.getChatId());
             return answerCallbackQuery;
         }
 
-        BotKeyboardCallback keyboardCallback = (BotKeyboardCallback)callback;
-        if(keyboardCallback.getOriginalMessageId() != originalMessage.getMessageId()) {
+        BotKeyboardCallback keyboardCallback = (BotKeyboardCallback) callback;
+        if (keyboardCallback.getOriginalMessageId() != originalMessage.getMessageId()) {
             LOGGER.warn("Received message with no registered callback");
             return answerCallbackQuery;
         }
@@ -201,8 +202,8 @@ saveChatInfo(chatId, message, new Timestamp(sent.getDate() * 1000L), null, Sende
 
     private BotApiMethod handleChatMessage(Update update, Message message) {
         Long chatId = message.getChatId();
-saveChatInfoCustomer(chatId, update, null);
-        if(message.isCommand()) {
+        saveChatInfoCustomer(chatId, update, null);
+        if (message.isCommand()) {
             String messageText = update.getMessage().getText();
             Command command = Command.fromMessage(messageText);
 
@@ -211,22 +212,22 @@ saveChatInfoCustomer(chatId, update, null);
                     startProcess(chatId, command.getArguments()[0], update);
                     break;
                 case HELP_COMMAND:
-                    startProcess(chatId,"help", update);
+                    startProcess(chatId, "help", update);
             }
         }
 
-        if(!callbacks.containsKey(chatId)) {
+        if (!callbacks.containsKey(chatId)) {
             // new dialog
             startProcess(chatId, "help", update);
             return null;
         }
 
         IBotCallback callback = callbacks.get(chatId);
-        if(!(callback instanceof BotMessageCallback)) {
+        if (!(callback instanceof BotMessageCallback)) {
             return handleWrongUserAction(chatId);
         }
 
-        BotMessageCallback messageCallback = (BotMessageCallback)callback;
+        BotMessageCallback messageCallback = (BotMessageCallback) callback;
 
         callbacks.remove(chatId);
         messageCallback.answerReceived(chatId, message.getFrom(), message.getText());
@@ -242,12 +243,12 @@ saveChatInfoCustomer(chatId, update, null);
     private BotApiMethod handleLocation(Update update, Message message) {
         Long chatId = message.getChatId();
 
-        if(!callbacks.containsKey(chatId)) {
+        if (!callbacks.containsKey(chatId)) {
             return handleWrongUserAction(chatId);
         }
 
         IBotCallback callback = callbacks.get(chatId);
-        if(!(callback instanceof BotLocationCallback)) {
+        if (!(callback instanceof BotLocationCallback)) {
             return handleWrongUserAction(chatId);
         }
 
