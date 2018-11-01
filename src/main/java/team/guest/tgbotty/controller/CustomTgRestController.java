@@ -119,11 +119,14 @@ public class CustomTgRestController {
     }
 
     @Transactional
-    public void startDialogWithHuman(Long chatId) {
+    public void startDialogWithHuman(Long chatId) throws TelegramApiException {
         Chat chat = chatRepository.findByChatId(chatId).orElseThrow(() -> new NoChatFoundException(chatId));
         exampleProcessStarter.deleteProcessInstance(chat.getActiveProcessId(), "Supporter interrupt dialog");
+        
         chat.setActiveProcessId(null);
         chat.setDialogMode(true);
+        
+        sendMessageFromSupporter(chatId, "Сотрудник подключился к диалогу");
     }
 
     public String assignRequest(Long chatId) {
@@ -269,7 +272,7 @@ public class CustomTgRestController {
         return answerCallbackQuery;
     }
 
-    private BotApiMethod handleChatMessage(Update update, Message message) throws TelegramApiException {
+    private BotApiMethod handleChatMessage(Update update, Message message) {
         Long chatId = message.getChatId();
 
         Chat chat = getOrCreateChat(chatId);
@@ -315,11 +318,11 @@ public class CustomTgRestController {
         return null;
     }
 
-    private void startProcess(Long chatId, String processSchemeId, Update update) throws TelegramApiException {
+    private void startProcess(Long chatId, String processSchemeId, Update update) {
         ProcessInstance processInstance = exampleProcessStarter.startProcess(processSchemeId, update);
         
         getOrCreateChat(chatId).setDialogMode(false);
-        sendMessageFromSupporter(chatId, "Пользователь подключился к диалогу");
+        saveChatInfoCustomer(chatId, update, "Пользователь подключился к диалогу");
         
         saveChat(chatId, processInstance.getId(), update);
     }
