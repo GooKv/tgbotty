@@ -1,7 +1,7 @@
 package team.guest.tgbotty.entity;
 
 import javax.persistence.*;
-import java.sql.Date;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "message")
@@ -11,12 +11,11 @@ public class ChatMessage {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
     @ManyToOne
-    //@JoinColumn(name="id", nullable=false)
     private Chat chat;
     @Column(name = "text")
     private String text;
     @Column(name = "send_time")
-    private Date sendTime;
+    private Timestamp sendTime;
     @Column(name = "sender")
     private String sender;
 
@@ -28,7 +27,7 @@ public class ChatMessage {
         this.text = text;
     }
 
-    public ChatMessage(Chat chat, String text, Date sendTime, String sender) {
+    public ChatMessage(Chat chat, String text, Timestamp sendTime, String sender) {
         this.chat = chat;
         this.text = text;
         this.sendTime = sendTime;
@@ -59,11 +58,11 @@ public class ChatMessage {
         this.id = id;
     }
 
-    public Date getSendTime() {
+    public Timestamp getSendTime() {
         return sendTime;
     }
 
-    public void setSendTime(Date sendTime) {
+    public void setSendTime(Timestamp sendTime) {
         this.sendTime = sendTime;
     }
 

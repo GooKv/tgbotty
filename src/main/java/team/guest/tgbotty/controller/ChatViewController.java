@@ -75,6 +75,7 @@ public class ChatViewController {
         List<ChatViewDto> chatViewDtoList = new ArrayList<>();
         chatRepository.findAll().forEach(chat -> chatViewDtoList.add(chatConverter.convert(chat)));
         return chatViewDtoList;
+//       return chats.entrySet().stream().map(entry -> new ChatViewDto(entry.getKey(), entry.getValue().getId().toString())).collect(Collectors.toList());
     }
 
     @RequestMapping("view/{id}")
@@ -84,6 +85,7 @@ public class ChatViewController {
         return new ChatDto(chat.getChatId(),
                            chat.getActiveProcessId(),
                            chat.getChatMessages().stream().map(chatConverter::convert).collect(Collectors.toList()));
+//        return chats.get(id);
     }
 
 

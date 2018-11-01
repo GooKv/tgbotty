@@ -19,7 +19,7 @@ import team.guest.tgbotty.dao.ChatRepository;
 import team.guest.tgbotty.entity.Chat;
 import team.guest.tgbotty.entity.ChatMessage;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -104,13 +104,13 @@ public class CustomTgRestController {
     }
 
     private void saveChatInfo(long chatId, Update update) {
-        Chat chat = chatRepository.findById(chatId).orElseGet(() -> chatRepository.save(new Chat(chatId)));
+        Chat chat = chatRepository.findByChatId(chatId).orElseGet(() -> chatRepository.save(new Chat(chatId)));
         List<ChatMessage> chatMessages = chat.getChatMessages();
         Message updateMessage = update.getMessage();
-        Date date = new Date(updateMessage.getDate());
+        Timestamp timestamp = new Timestamp(updateMessage.getDate() * 1000L);
         ChatMessage chatMessage = new ChatMessage(chat,
                                                   updateMessage.getText(),
-                                                  date,
+                                                  timestamp,
                                                   updateMessage.getFrom().getBot() ? "bot" : updateMessage.getFrom().getUserName());
         chatMessageRepository.save(chatMessage);
         chatMessages.add(chatMessage);
