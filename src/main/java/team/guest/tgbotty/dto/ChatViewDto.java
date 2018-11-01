@@ -6,6 +6,8 @@ public class ChatViewDto {
     private String displayName;
     private MessageDto lastMessage;
 
+    private String avatarUrl;
+    
     public ChatViewDto(Long id, String displayName, MessageDto lastMessage) {
         this.id = id;
         this.displayName = displayName;
@@ -16,7 +18,15 @@ public class ChatViewDto {
         this.id = id;
         this.displayName = displayName;
     }
-
+    
+    public void setAvatarUrl(String url) {
+        this.avatarUrl = url;
+    }
+    
+    public String getAvatarUrl() {
+        return this.avatarUrl;
+    }
+    
     public ChatViewDto() {
     }
 

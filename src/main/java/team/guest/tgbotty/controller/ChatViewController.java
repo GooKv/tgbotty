@@ -28,7 +28,9 @@ public class ChatViewController {
     @RequestMapping("view")
     @ResponseBody
     public List<ChatViewDto> getChatList() {
-        return chatManager.getChatList();
+        List<ChatViewDto> list = chatManager.getChatList();
+        for(ChatViewDto dto : list) dto.setAvatarUrl(customTgRestController.getAvatar(dto.getId()));
+        return list;
     }
 
     @RequestMapping("view/{id}")
