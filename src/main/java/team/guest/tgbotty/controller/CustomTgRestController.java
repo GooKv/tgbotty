@@ -83,6 +83,7 @@ public class CustomTgRestController {
             exampleProcessStarter.startRepeaterProcess(update.getMessage().getChatId(), update);
             return null;
         } catch (Exception e) {
+            LOGGER.error("Exception in custom controller", e);
             if(update.hasMessage()) {
                 String message = e.getClass().getName();
                 if(e.getMessage() != null) message += ": " + e.getMessage();
