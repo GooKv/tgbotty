@@ -7,8 +7,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.WebhookBot;
 import team.guest.tgbotty.dao.ChatRepository;
 import team.guest.tgbotty.entity.Chat;
+import team.guest.tgbotty.entity.Message;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,9 +42,7 @@ public class CustomTgRestController {
 
         Long chatId = update.getMessage().getChatId();
 
-        if (!isChatExisted(chatId)) {
-            chatRepository.save(new Chat(chatId));
-        }
+        saveChatInfo(chatId, update);
 
         exampleProcessStarter.startRepeaterProcess(chatId, update);
         return null;
@@ -52,7 +53,17 @@ public class CustomTgRestController {
         return this.registeredBots.containsKey(path) ? "Hi there " + path + "!" : "Callback not found for " + path;
     }
 
-    private boolean isChatExisted(long chatId) {
-        return chatRepository.findById(chatId).isPresent();
+    private void saveChatInfo(long chatId, Update update) {
+        Chat chat = chatRepository.findById(chatId).orElseGet(() -> new Chat(chatId));
+        List<Message> messages = chat.getMessages();
+        org.telegram.telegrambots.meta.api.objects.Message updateMessage = update.getMessage();
+        Message message = new Message(chatId,
+                                      updateMessage.getText(),
+                                      new Timestamp(updateMessage.getDate()),
+                                      updateMessage.getFrom().getBot()? "bot" : updateMessage.getFrom().getUserName());
+        messages.add(message);
+        chat.setMessages(messages);
+        chatRepository.save(chat);
+
     }
 }
