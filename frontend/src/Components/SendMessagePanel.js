@@ -25,15 +25,13 @@ const sendMessage = (chatId, messageText) => {
 };
 
 const joinToChat = chatId => {
-  return fetch(`view/${chatId}/startDialog`).catch(
-    error => {
-      console.error(error);
-      message.error(
-        "Не удалось присоединиться к диалогу, попробуйте повторить позднее"
-      );
-      throw error;
-    }
-  );
+  return fetch(`view/${chatId}/startDialog`).catch(error => {
+    console.error(error);
+    message.error(
+      "Не удалось присоединиться к диалогу, попробуйте повторить позднее"
+    );
+    throw error;
+  });
 };
 
 class SendMessagePanel extends Component {

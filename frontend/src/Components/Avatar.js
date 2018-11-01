@@ -6,7 +6,15 @@ const employeeAvatarStyle = { backgroundColor: "#87d068" };
 const botAvatarStyle = { backgroundColor: "#4286f4" };
 
 const BotAvatar = () => <Avatar style={botAvatarStyle} icon="robot" />;
-const UserAvatar = ({avatarUrl}) => <Avatar style={userAvatarStyle} icon={!avatarUrl &&"user"} >{avatarUrl}</Avatar>;
+const UserAvatar = ({ avatarUrl }) => {
+  let avatarProps = {};
+  if (avatarUrl) {
+    avatarProps.src = avatarUrl;
+  } else {
+    avatarProps.icon = "user";
+  }
+  return <Avatar style={userAvatarStyle} {...avatarProps} />;
+};
 const EmployeeAvatar = () => <Avatar style={employeeAvatarStyle}>ВЫ</Avatar>;
 
 const MyAvatar = ({ user, avatarUrl }) => {
