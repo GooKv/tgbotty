@@ -200,11 +200,15 @@ public class CustomTgRestController {
     }
 
     private void saveChatInfoCustomer(long chatId, Update update, String message) {
+        saveChatInfoCustomer(chatId, update, message, false);
+    }
+    
+    private void saveChatInfoCustomer(long chatId, Update update, String message, boolean location) {
         Message updateMessage = update.getMessage();
         if (message == null) message = updateMessage.getText();
 
         saveChatInfo(chatId, message, new Timestamp(updateMessage.getDate() * 1000L),
-                formUserName(updateMessage.getFrom()), SenderType.CUSTOMER);
+                formUserName(updateMessage.getFrom()), SenderType.CUSTOMER, location);
     }
 
     public String formUserName(User user) {
@@ -214,10 +218,16 @@ public class CustomTgRestController {
     }
 
     public void saveChatInfo(long chatId, String message, Timestamp timestamp, String username, SenderType senderType) {
+        saveChatInfo(chatId, message, timestamp, username, senderType, false);
+    }
+    
+    public void saveChatInfo(long chatId, String message, Timestamp timestamp, String username, SenderType senderType, 
+                             boolean location) {
         Chat chat = getOrCreateChat(chatId);
         List<ChatMessage> chatMessages = chat.getChatMessages();
 
         ChatMessage chatMessage = new ChatMessage(chat, message, timestamp, username, senderType);
+        chatMessage.setLocation(location);
         chatMessageRepository.save(chatMessage);
 
         chatMessages.add(chatMessage);
@@ -341,19 +351,9 @@ public class CustomTgRestController {
         BotLocationCallback locationCallback = (BotLocationCallback) callback;
         
         Location loc = message.getLocation();
+        String value = loc.getLatitude() + " " + loc.getLongitude();
         
-        String value;
-        try {
-            value = Resources.toString(CustomTgRestController.class.getResource("/map.html"), Charsets.UTF_8);
-            value = value.replaceAll("\\$Lat\\$", loc.getLatitude().toString());
-            value = value.replaceAll("\\$Lon\\$", loc.getLatitude().toString());
-            value = value.replaceAll("\\$Id\\$", message.getMessageId().toString());
-        } catch (IOException e) {
-            value = "{ " + loc.getLatitude() + ", " + loc.getLongitude() + " }";
-            LOGGER.error("Error loading map", e);
-        }
-        
-        saveChatInfoCustomer(chatId, update, value);
+        saveChatInfoCustomer(chatId, update, value, true);
 
         callbacks.remove(chatId);
         locationCallback.answerReceived(chatId, message.getFrom(), value);
