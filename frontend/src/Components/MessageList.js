@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import { Layout, List } from "antd";
 import { Avatar } from "./Avatar";
+import { Map } from "./Map";
 
 const { Content } = Layout;
 
@@ -24,7 +25,11 @@ class MessageList extends Component {
                 </div>
                 <div className="message-content">
                   <div className="message-sender">{item.sender || ""}</div>
-                  <div className="message-text">{item.message}</div>
+                  {item.isLocation ? (
+                    <Map coordinates={item.message} />
+                  ) : (
+                    <div className="message-text">{item.message}</div>
+                  )}
                   <div className="message-date">{item.time}</div>
                 </div>
               </div>
