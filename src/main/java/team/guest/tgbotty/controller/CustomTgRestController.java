@@ -37,7 +37,8 @@ public class CustomTgRestController {
     private final Map<String, WebhookBot> registeredBots;
     private final ChatRepository chatRepository;
     private final ChatMessageRepository chatMessageRepository;
-    private String START_PROCESS_COMMAND;
+    private static final String START_PROCESS_COMMAND = "/sp";
+    private static final String HELP_COMMAND = "/help";
 
     private Map<Pair<Long, Integer>, BotKeyboardCallback> keyboardCallbacks = new HashMap<>();
 
@@ -70,18 +71,19 @@ public class CustomTgRestController {
 
             saveChatInfo(chatId, update);
 
-            exampleProcessStarter.startRepeaterProcess(chatId, update);
-
             if (update.hasMessage() && update.getMessage().isCommand()) {
-                START_PROCESS_COMMAND = "/startprocess";
                 String messageText = update.getMessage().getText();
-                if (messageText.startsWith(START_PROCESS_COMMAND)) {
-                    String[] args = getArguments(messageText, START_PROCESS_COMMAND);
-                    exampleProcessStarter.startProcess(args[0], update);
+                Command command = Command.fromMessage(messageText);
+
+                switch (command.getName()) {
+                    case START_PROCESS_COMMAND:
+                        exampleProcessStarter.startProcess(command.getArguments()[0], update);
+                        break;
+                    case HELP_COMMAND:
+                        exampleProcessStarter.startProcess("help", update);
                 }
             }
 
-            exampleProcessStarter.startRepeaterProcess(update.getMessage().getChatId(), update);
             return null;
         } catch (Exception e) {
             LOGGER.error("Exception in custom controller", e);
@@ -93,10 +95,6 @@ public class CustomTgRestController {
             }
             return null;
         }
-    }
-
-    private String[] getArguments(String messageText, String command) {
-        return messageText.substring(command.length()).trim().split(" ");
     }
 
     @GetMapping(value = "/callback/{path}", produces = MediaType.APPLICATION_JSON_VALUE)
