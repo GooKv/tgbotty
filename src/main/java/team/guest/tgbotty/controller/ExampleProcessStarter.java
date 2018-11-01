@@ -103,8 +103,10 @@ public class ExampleProcessStarter {
     }
 
     public ProcessInstance startProcess(String processId, Map<String, Object> env) {
-        Long chatId = (Long) env.get("chatId");
-        if (chatId != null) {
+        Object chatIdObject = env.get("chatId");
+
+        if (chatIdObject != null) {
+            Long chatId = ((Number)chatIdObject).longValue();
             saveProcessIdInChat(chatId, processId);
         } else {
             System.err.println("No chat id for process " + processId);
