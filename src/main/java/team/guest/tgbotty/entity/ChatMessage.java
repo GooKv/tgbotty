@@ -18,6 +18,9 @@ public class ChatMessage {
     private Timestamp sendTime;
     @Column(name = "sender")
     private String sender;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sender_type")
+    private SenderType senderType;
 
     protected ChatMessage() {
     }
@@ -27,19 +30,28 @@ public class ChatMessage {
         this.text = text;
     }
 
-    public ChatMessage(Chat chat, String text, Timestamp sendTime, String sender) {
+    public ChatMessage(Chat chat, String text, Timestamp sendTime, String sender, SenderType senderType) {
         this.chat = chat;
         this.text = text;
         this.sendTime = sendTime;
         this.sender = sender;
+        this.senderType = senderType;
     }
 
-    public Chat getChatId() {
+    public Chat getChat() {
         return chat;
     }
 
-    public void setChatId(Chat chat) {
+    public void setChat(Chat chat) {
         this.chat = chat;
+    }
+
+    public SenderType getSenderType() {
+        return senderType;
+    }
+
+    public void setSenderType(SenderType senderType) {
+        this.senderType = senderType;
     }
 
     public String getText() {
