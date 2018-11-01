@@ -32,6 +32,9 @@
         <userTask id="selectVspOption" name="Выбор способа уточнения" />
         <sequenceFlow sourceRef="selectVspOption" targetRef="vspOptionSelected"/>
         <exclusiveGateway id="vspOptionSelected"/>
+        <sequenceFlow sourceRef="vspOptionSelected" targetRef="vspSetNumber">
+            <conditionExpression xsi:type="tFormalExpression">#{vspChoose == "vspNumber"}</conditionExpression>
+        </sequenceFlow>
         <sequenceFlow sourceRef="vspOptionSelected" targetRef="vspChooseLocation">
             <conditionExpression xsi:type="tFormalExpression">#{vspChoose == "geolocation"}</conditionExpression>
         </sequenceFlow>
@@ -40,10 +43,17 @@
                 #{!vspChooseOptions.containsKey(vspChoose)}
             </conditionExpression>
         </sequenceFlow>
+        <serviceTask id="vspSetNumber" name="Запрос номера подразделения"
+                     activiti:expression="#{bot.requestString(chatId, 'Укажите номер отделения', 'vspNumber')}"/>
+        <sequenceFlow sourceRef="vspSetNumber" targetRef="enterVspNumberTask"/>
+        <userTask id="enterVspNumberTask" name="Ввод номера подразделенеия" />
+        <sequenceFlow sourceRef="enterVspNumberTask" targetRef="setupExitOptions"/>
         <serviceTask id="vspChooseLocation" name="Запрос геолокации"
                      activiti:expression="#{bot.requestLocation(chatId, 'Укажите локацию', 'geolocation')}"/>
-        <sequenceFlow sourceRef="vspChooseLocation" targetRef="setupExitOptions"/>
-        
+        <sequenceFlow sourceRef="vspChooseLocation" targetRef="enterVspLocationTask"/>
+        <userTask id="enterVspLocationTask" name="Прикрепление геолокации" />
+        <sequenceFlow sourceRef="enterVspLocationTask" targetRef="setupExitOptions"/>
+
         <serviceTask id="enterTerminalNumber" name="Запрос номера банкомата"
                      activiti:expression="#{bot.requestString(chatId, 'Введите номер банкомата', 'terminalNumber')}"/>
         <sequenceFlow sourceRef="enterTerminalNumber" targetRef="enterTerminalNumberTask"/>
