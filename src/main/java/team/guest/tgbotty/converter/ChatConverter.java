@@ -75,6 +75,7 @@ public class ChatConverter {
         messageDto.setSenderType(chatMessage.getSenderType().name());
         messageDto.setTime(formatDate(chatMessage.getSendTime()));
         messageDto.setMessageId(chatMessage.getId());
+        messageDto.setLocation(chatMessage.getLocation());
         return messageDto;
     }
 
