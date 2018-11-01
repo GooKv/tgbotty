@@ -25,7 +25,7 @@ class MessageList extends Component {
                 </div>
                 <div className="message-content">
                   <div className="message-sender">{item.sender || ""}</div>
-                  {item.isLocation ? (
+                  {item.location ? (
                     <Map coordinates={item.message} />
                   ) : (
                     <div className="message-text">{item.message}</div>
