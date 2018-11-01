@@ -12,7 +12,7 @@ public class ChatMessage {
     private Long id;
     @ManyToOne
     private Chat chat;
-    @Column(name = "text")
+    @Column(name = "text", length = 1028)
     private String text;
     @Column(name = "send_time")
     private Timestamp sendTime;
