@@ -12,6 +12,8 @@ import team.guest.tgbotty.entity.Chat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @Qualifier(value = "database")
@@ -29,9 +31,10 @@ public class ChatManagerDatabase implements ChatManager {
 
     @Override
     public List<ChatViewDto> getChatList() {
-        List<ChatViewDto> chatViewDtoList = new ArrayList<>();
-        chatRepository.findAll().forEach(chat -> chatViewDtoList.add(chatConverter.convert(chat)));
-        return chatViewDtoList;
+        return StreamSupport.stream(chatRepository.findAll().spliterator(), false)
+                .filter(it -> !it.getChatMessages().isEmpty())
+                .map(chatConverter::convert)
+                .collect(Collectors.toList());
     }
 
     @Override
