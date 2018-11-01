@@ -22,7 +22,7 @@ public class ChatConverter {
         chatViewDto.setDisplayName(constructDisplayName(chat));
         chatViewDto.setId(chat.getChatId());
 
-        ChatMessage lastMessage = Iterables.getLast(chat.getChatMessages());
+        ChatMessage lastMessage = Iterables.getLast(chat.getChatMessages(), null);
 
         chatViewDto.setLastMessage(convert(lastMessage));
 
