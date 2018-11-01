@@ -19,7 +19,7 @@ public class Chat {
     private String activeProcessId;
     @ElementCollection
     @CollectionTable(name = "message", joinColumns = @JoinColumn(name = "chat_id"))
-    private List<Message> messages;
+    private List<Message> messages = new ArrayList<>();
 
     protected Chat() {
     }
