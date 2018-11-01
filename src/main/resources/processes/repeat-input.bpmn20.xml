@@ -16,7 +16,7 @@
     <process id="help" name="help" isExecutable="true">
         <startEvent id="startHelp"/>
         <sequenceFlow sourceRef="startHelp" targetRef="setupOptions"/>
-        <serviceTask id="setupOptions" name="" activiti:expression="#{bot.sendOptions(chatId, 'Вопрос юзеру', 'helpAnswer', 'ineedawoman', 'I need a woman', 'icantcode', 'I cant code')}"/>
+        <serviceTask id="setupOptions" name="" activiti:expression="#{bot.sendOptions(execution, chatId, 'Вопрос юзеру', 'helpAnswer', 'ineedawoman', 'I need a woman', 'icantcode', 'I cant code')}"/>
         <sequenceFlow sourceRef="setupOptions" targetRef="selectOption"/>
         <userTask id="selectOption" name="" activiti:assignee="bot" />
         <exclusiveGateway id="optionSelected"/>
@@ -27,7 +27,9 @@
         <sequenceFlow sourceRef="optionSelected" targetRef="icantcode">
             <conditionExpression xsi:type="tFormalExpression">#{helpAnswer == "icantcode"}</conditionExpression>
         </sequenceFlow>
-        <!--<sequenceFlow sourceRef="optionSelected" targetRef="setupOptions"/>-->
+        <sequenceFlow sourceRef="optionSelected" targetRef="setupOptions">
+            <conditionExpression xsi:type="tFormalExpression">#{!helpAnswerOptions.containsKey(helpAnswer)}</conditionExpression>
+        </sequenceFlow>
         <serviceTask id="icantcode" activiti:expression="#{bot.sendSimpleMessage(chatId, 'Yes u cant')}"/>
         <sequenceFlow sourceRef="ineedawoman" targetRef="endHelp"/>
         <sequenceFlow sourceRef="icantcode" targetRef="endHelp"/>

@@ -1,30 +1,40 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
-import { Layout } from "antd";
+import { Layout, List, Avatar } from "antd";
 
 const { Content } = Layout;
 
-const Message = ({ message }) => (
-  <div
-    style={{
-      height: "100px",
-      background: "black",
-      margin: "10px 0",
-      color: "white"
-    }}
-  >
-    {message}
-  </div>
-);
+const userAvatarStyle = { backgroundColor: "#87d068" };
+const botAvatarStyle = { backgroundColor: "#05af32" };
+
+const isUser = it => it.sender !== "bot";
 
 class MessageList extends Component {
   render() {
     const { messages } = this.props;
+
     return (
       <Content className="main-content">
-        {messages.map((it, index) => (
-          <Message key={index} message={it.message} />
-        ))}
+        <List
+          itemLayout="horizontal"
+          dataSource={messages}
+          renderItem={item => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={
+                  <Avatar
+                    style={isUser(item) ? userAvatarStyle : botAvatarStyle}
+                    icon={!isUser(item) && "user"}
+                  >
+                    {isUser(item) && item.sender.charAt(0)}
+                  </Avatar>
+                }
+                title={item.sender}
+                description={item.message}
+              />
+            </List.Item>
+          )}
+        />
       </Content>
     );
   }

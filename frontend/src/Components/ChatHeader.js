@@ -7,7 +7,7 @@ class ChatHeader extends Component {
   render() {
     const { header } = this.props;
     return (
-      <Header className="main-header">
+      <Header theme="light" className="main-header">
         <h2>{header}</h2>
       </Header>
     );

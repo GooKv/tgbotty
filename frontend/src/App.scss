@@ -1,5 +1,4 @@
 $main-header-height: 50px;
-$main-footer-height: 48px;
 
 .main-layout {
   height: 100vh;
@@ -7,7 +6,6 @@ $main-footer-height: 48px;
 }
 
 .main-header {
-  background: blue;
   color: white;
   height: $main-header-height;
 
@@ -17,23 +15,24 @@ $main-footer-height: 48px;
 }
 
 .main-footer {
-  background: red;
-  height: $main-footer-height;
+  background: #bbb;
+  padding: 10px 5px;
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
 }
 
-.main-layout {
-  background: green;
+.chat-layout {
   position: relative;
+  height: 100vh;
 }
 
 .main-content {
+  background: #ccc;
   width: 100%;
   height: 100%;
-  background: purple;
+  padding: 10px 20px;
   overflow: auto;
 }
 
