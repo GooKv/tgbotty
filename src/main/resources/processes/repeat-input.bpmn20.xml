@@ -18,7 +18,7 @@
         <sequenceFlow sourceRef="startHelp" targetRef="setupOptions"/>
         <serviceTask id="setupOptions" name="" activiti:expression="#{bot.sendOptions(execution, chatId, 'Вопрос юзеру', 'helpAnswer', 'ineedawoman', 'I need a woman', 'icantcode', 'I cant code')}"/>
         <sequenceFlow sourceRef="setupOptions" targetRef="selectOption"/>
-        <userTask id="selectOption" name="" activiti:assignee="bot" />
+        <userTask id="selectOption" name="" />
         <exclusiveGateway id="optionSelected"/>
         <sequenceFlow sourceRef="optionSelected" targetRef="ineedawoman">
             <conditionExpression xsi:type="tFormalExpression">#{helpAnswer == "ineedawoman"}</conditionExpression>
