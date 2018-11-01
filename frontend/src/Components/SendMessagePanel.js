@@ -36,13 +36,6 @@ const joinToChat = chatId => {
   });
 };
 
-const pickEmojiButtonStyle = {
-  width: "32 px",
-  height: "32 px",
-  flexGrow: 0,
-  flexShrink: 0
-};
-
 class SendMessagePanel extends Component {
   constructor(props) {
     super(props);
@@ -101,7 +94,7 @@ class SendMessagePanel extends Component {
               <Button
                 shape="circle"
                 icon="search"
-                style={pickEmojiButtonStyle}
+                className="pick-emoji-button"
               />
             </Popover>
             <Button type="primary" size="large" htmlType="submit">

@@ -1,11 +1,7 @@
 import React from "react";
 import { Avatar } from "antd";
 
-const userAvatarStyle = { backgroundColor: "#87d068" };
-const employeeAvatarStyle = { backgroundColor: "#87d068" };
-const botAvatarStyle = { backgroundColor: "#4286f4" };
-
-const BotAvatar = () => <Avatar style={botAvatarStyle} icon="robot" />;
+const BotAvatar = () => <Avatar className="bot-avatar" icon="robot" />;
 const UserAvatar = ({ avatarUrl }) => {
   let avatarProps = {};
   if (avatarUrl) {
@@ -13,11 +9,11 @@ const UserAvatar = ({ avatarUrl }) => {
   } else {
     avatarProps.icon = "user";
   }
-  return <Avatar style={userAvatarStyle} {...avatarProps} />;
+  return <Avatar className="user-avatar" {...avatarProps} />;
 };
-const EmployeeAvatar = () => <Avatar style={employeeAvatarStyle}>ВЫ</Avatar>;
+const EmployeeAvatar = () => <Avatar className="employee-avatar">ВЫ</Avatar>;
 
-const MyAvatar = ({ user, avatarUrl }) => {
+const AvatarWrapper = ({ user, avatarUrl }) => {
   switch (user.senderType) {
     case "BOT":
       return <BotAvatar />;
@@ -29,4 +25,4 @@ const MyAvatar = ({ user, avatarUrl }) => {
   }
 };
 
-export { MyAvatar as Avatar };
+export { AvatarWrapper as Avatar };
