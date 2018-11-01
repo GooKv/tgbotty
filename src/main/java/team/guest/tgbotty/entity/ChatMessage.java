@@ -59,14 +59,6 @@ public class ChatMessage {
         this.id = id;
     }
 
-    public String getMessage() {
-        return text;
-    }
-
-    public void setMessage(String message) {
-        this.text = message;
-    }
-
     public Date getSendTime() {
         return sendTime;
     }

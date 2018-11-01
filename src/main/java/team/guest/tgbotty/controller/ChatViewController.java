@@ -6,12 +6,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import team.guest.tgbotty.converter.ChatConverter;
 import team.guest.tgbotty.dao.ChatRepository;
 import team.guest.tgbotty.dto.ChatDto;
 import team.guest.tgbotty.dto.ChatViewDto;
 import team.guest.tgbotty.dto.MessageDto;
 import team.guest.tgbotty.entity.Chat;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -59,20 +61,20 @@ public class ChatViewController {
                                                                  ":54"))));
 
     private final ChatRepository chatRepository;
+    private final ChatConverter chatConverter;
 
     @Autowired
-    public ChatViewController(ChatRepository chatRepository) {
+    public ChatViewController(ChatRepository chatRepository, ChatConverter chatConverter) {
         this.chatRepository = chatRepository;
+        this.chatConverter = chatConverter;
     }
 
     @RequestMapping("view")
     @ResponseBody
     public List<ChatViewDto> getChatList() {
-        return chats.entrySet()
-                .stream()
-                .map(entry -> new ChatViewDto(entry.getKey(),
-                                              entry.getValue().getDisplayName()))
-                .collect(Collectors.toList());
+        List<ChatViewDto> chatViewDtoList = new ArrayList<>();
+        chatRepository.findAll().forEach(chat -> chatViewDtoList.add(chatConverter.convert(chat)));
+        return chatViewDtoList;
     }
 
     @RequestMapping("view/{id}")
@@ -81,22 +83,7 @@ public class ChatViewController {
         Chat chat = chatRepository.findByChatId(id).orElseThrow(() -> new NoChatFoundException(id));
         return new ChatDto(chat.getChatId(),
                            chat.getActiveProcessId(),
-                           Arrays.asList(new MessageDto("dedushka",
-                                                        "alala",
-                                                        12L,
-                                                        "12" +
-                                                                ".10" +
-                                                                ".2018 " +
-                                                                "12:00" +
-                                                                ":00"),
-                                         new MessageDto("bot",
-                                                        "mes from bot",
-                                                        13L,
-                                                        "12" +
-                                                                ".10" +
-                                                                ".2018 " +
-                                                                "12:00" +
-                                                                ":05")));
+                           chat.getChatMessages().stream().map(chatConverter::convert).collect(Collectors.toList()));
     }
 
 
