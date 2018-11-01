@@ -31,12 +31,14 @@ class ChatWindow extends Component {
       params: { chatId }
     } = this.props.match;
 
-    getChatMessages(chatId).then(response =>
-      this.setState({
-        chatName: response.displayName,
-        messages: response.messagesDtoList
-      }).catch(() => this.setState(defaultState))
-    );
+    getChatMessages(chatId)
+      .then(response =>
+        this.setState({
+          chatName: response.displayName,
+          messages: response.messagesDtoList
+        })
+      )
+      .catch(() => this.setState(defaultState));
   };
 
   render() {
