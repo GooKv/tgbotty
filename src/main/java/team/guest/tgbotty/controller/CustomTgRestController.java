@@ -18,6 +18,7 @@ public class CustomTgRestController {
     private final ExampleProcessStarter exampleProcessStarter;
     private final Map<String, WebhookBot> registeredBots;
     private final ChatRepository chatRepository;
+    private String START_PROCESS_COMMAND;
 
     @Autowired
     public CustomTgRestController(ExampleProcessStarter exampleProcessStarter,
@@ -44,7 +45,22 @@ public class CustomTgRestController {
         }
 
         exampleProcessStarter.startRepeaterProcess(chatId, update);
+
+        if (update.hasMessage() && update.getMessage().isCommand()) {
+            START_PROCESS_COMMAND = "/startprocess";
+            String messageText = update.getMessage().getText();
+            if (messageText.startsWith(START_PROCESS_COMMAND)) {
+                String[] args = getArguments(messageText, START_PROCESS_COMMAND);
+                exampleProcessStarter.startProcess(args[0], update);
+            }
+        }
+
+        exampleProcessStarter.startRepeaterProcess(update.getMessage().getChatId(), update);
         return null;
+    }
+
+    private String[] getArguments(String messageText, String command) {
+        return messageText.substring(command.length()).trim().split(" ");
     }
 
     @GetMapping(value = "/callback/{path}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -54,5 +70,10 @@ public class CustomTgRestController {
 
     private boolean isChatExisted(long chatId) {
         return chatRepository.findById(chatId).isPresent();
+    }
+
+    @PostMapping(value = "/startprocess/{processName}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object startProcess(@PathVariable String processName, @RequestBody Map<String, Object> env) {
+        return exampleProcessStarter.startProcess(processName, env).getId();
     }
 }
