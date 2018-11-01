@@ -2,17 +2,25 @@ import React, { Component, Fragment } from "react";
 import { withRouter } from "react-router-dom";
 import { MessageList } from "./MessageList";
 import { ChatHeader } from "./ChatHeader";
+import { SendMessagePanel } from "./SendMessagePanel";
+import { message } from "antd";
 
 const getChatMessages = chatId =>
   fetch(`/view/${chatId}`)
     .then(response => response.json())
-    .catch(console.error);
+    .catch(error => {
+      console.error(error);
+      message.error("Не удалось загрузить чат");
+      throw error;
+    });
+
+const defaultState = {
+  chatName: "",
+  messages: []
+};
 
 class ChatWindow extends Component {
-  state = {
-    chatName: "",
-    messages: []
-  };
+  state = defaultState;
 
   componentDidMount() {
     this.getChatMessages();
@@ -27,7 +35,7 @@ class ChatWindow extends Component {
       this.setState({
         chatName: response.displayName,
         messages: response.messagesDtoList
-      })
+      }).catch(() => this.setState(defaultState))
     );
   };
 
@@ -38,6 +46,7 @@ class ChatWindow extends Component {
       <Fragment>
         <ChatHeader header={chatName} />
         <MessageList messages={messages} />
+        <SendMessagePanel />
       </Fragment>
     );
   }

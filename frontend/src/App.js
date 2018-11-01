@@ -4,7 +4,7 @@ import { Layout } from "antd";
 import { Menu, ChatWindow } from "./Components";
 import "./App.scss";
 
-const { Footer, Content } = Layout;
+const { Content } = Layout;
 
 const renderChatWindow = ({ match }) => (
   <ChatWindow key={match.params.chatId} />
@@ -21,7 +21,6 @@ class App extends Component {
               <Switch>
                 <Route path="/chat/:chatId" render={renderChatWindow} />
               </Switch>
-              <Footer className="main-footer">Footer</Footer>
             </Layout>
           </Content>
         </Layout>
