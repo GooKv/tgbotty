@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
-import { Layout, Input, Button, Form, message } from "antd";
+import { Layout, Input, Button, Form, Popover, message } from "antd";
+import { Picker } from "emoji-mart";
+import "emoji-mart/css/emoji-mart.css";
 
 const { Footer } = Layout;
 const { TextArea } = Input;
@@ -34,6 +36,13 @@ const joinToChat = chatId => {
   });
 };
 
+const pickEmojiButtonStyle = {
+  width: "32 px",
+  height: "32 px",
+  flexGrow: 0,
+  flexShrink: 0
+};
+
 class SendMessagePanel extends Component {
   constructor(props) {
     super(props);
@@ -58,6 +67,16 @@ class SendMessagePanel extends Component {
     });
   };
 
+  pickEmoji = value => {
+    const { form } = this.props;
+    const oldMessageValue = form.getFieldValue("message");
+    const message = oldMessageValue
+      ? oldMessageValue + value.native
+      : value.native;
+    debugger;
+    form.setFieldsValue({ message });
+  };
+
   render() {
     const {
       canTalk,
@@ -75,6 +94,16 @@ class SendMessagePanel extends Component {
             {getFieldDecorator("message")(
               <TextArea rows={4} placeholder="Введите сообщение" />
             )}
+            <Popover
+              content={<Picker onSelect={this.pickEmoji} />}
+              title="Title"
+            >
+              <Button
+                shape="circle"
+                icon="search"
+                style={pickEmojiButtonStyle}
+              />
+            </Popover>
             <Button type="primary" size="large" htmlType="submit">
               Отправить
             </Button>
