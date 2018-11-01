@@ -67,10 +67,7 @@ public class ExampleProcessStarter {
     }
 
     public void completeUserTask(Long chatId, Update update) {
-        Task userTask = getTaskList().stream()
-                .filter(task -> task.getProcessVariables().get("chatId") == chatId)
-                .findFirst()
-                .orElseThrow(RuntimeException::new);
+        Task userTask = getCurrentUserTask(chatId);
 
         FormData formData = formService.getTaskFormData(userTask.getId());
         String propertyName = formData.getFormProperties()
@@ -80,7 +77,22 @@ public class ExampleProcessStarter {
                 .getId();
         Map<String, Object> variables = ImmutableMap.of(propertyName, update.getMessage().getText());
 
+        completeUserTask(userTask, variables);
+    }
+
+    private void completeUserTask(Task userTask, Map<String, Object> variables) {
         taskService.complete(userTask.getId(), variables);
+    }
+
+    public void completeUserTask(Long chatId, Map<String, Object> variables) {
+        completeUserTask(getCurrentUserTask(chatId), variables);
+    }
+
+    public Task getCurrentUserTask(Long chatId) {
+        return getTaskList().stream()
+                .filter(task -> task.getProcessVariables().get("chatId") == chatId)
+                .findFirst()
+                .orElseThrow(RuntimeException::new);
     }
 
     public void startProcess(String processId, Update update) {
