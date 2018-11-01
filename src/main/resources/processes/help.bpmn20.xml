@@ -6,14 +6,14 @@
         targetNamespace="Examples">
 
     <process id="help" name="help" isExecutable="true">
-        <startEvent id="startHelp" name="startHelp"/>
+        <startEvent id="startHelp" name="Старт"/>
         <sequenceFlow sourceRef="startHelp" targetRef="setupInitOptions"/>
-        <serviceTask id="setupInitOptions" name="setupInitOptions"
+        <serviceTask id="setupInitOptions" name="Отправить списиок категорий"
                      activiti:expression="#{bot.sendOptions(execution, chatId, 'К чему относится ваша проблема?', 'initAnswer', 'vsp', 'Обслуживание в отделении', 'terminal', 'Банкоматы', 'cards', 'Карты', 'bonuses', 'Бонусы', 'cabinet', 'Личный кабинет')}"/>
         <sequenceFlow sourceRef="setupInitOptions" targetRef="selectInitialOption"/>
-        <userTask id="selectInitialOption" name="selectInitialOption" />
+        <userTask id="selectInitialOption" name="Выбор категории" />
         <sequenceFlow sourceRef="selectInitialOption" targetRef="initialOptionSelected"/>
-        <exclusiveGateway id="initialOptionSelected" name="initialOptionSelected"/>
+        <exclusiveGateway id="initialOptionSelected"/>
         <sequenceFlow sourceRef="initialOptionSelected" targetRef="setupVspOptions">
             <conditionExpression xsi:type="tFormalExpression">#{initAnswer == "vsp"}</conditionExpression>
         </sequenceFlow>
@@ -26,12 +26,12 @@
             </conditionExpression>
         </sequenceFlow>
 
-        <serviceTask id="setupVspOptions" name="setupVspOptions"
+        <serviceTask id="setupVspOptions" name="Уточнение отделения"
                      activiti:expression="#{bot.sendOptions(execution, chatId, 'Уточнение отделения', 'vspChoose', 'vspNumber', '№ отделения', 'address', 'Адрес отделения', 'geolocation', 'Геопозиция')}"/>
         <sequenceFlow sourceRef="setupVspOptions" targetRef="selectVspOption"/>
-        <userTask id="selectVspOption" name="selectVspOption" />
+        <userTask id="selectVspOption" name="Выбор способа уточнения" />
         <sequenceFlow sourceRef="selectVspOption" targetRef="vspOptionSelected"/>
-        <exclusiveGateway id="vspOptionSelected" name="vspOptionSelected"/>
+        <exclusiveGateway id="vspOptionSelected"/>
         <sequenceFlow sourceRef="vspOptionSelected" targetRef="vspChooseLocation">
             <conditionExpression xsi:type="tFormalExpression">#{vspChoose == "geolocation"}</conditionExpression>
         </sequenceFlow>
@@ -40,27 +40,24 @@
                 #{!vspChooseOptions.containsKey(vspChoose)}
             </conditionExpression>
         </sequenceFlow>
-        <serviceTask id="vspChooseLocation" name="vspChooseLocation"
+        <serviceTask id="vspChooseLocation" name="Запрос геолокации"
                      activiti:expression="#{bot.requestLocation(chatId, 'Укажите локацию', 'geolocation')}"/>
-        <sequenceFlow sourceRef="vspChooseLocation" targetRef="createRequest"/>
+        <sequenceFlow sourceRef="vspChooseLocation" targetRef="setupExitOptions"/>
         
-        <serviceTask id="enterTerminalNumber" name="enterTerminalNumber"
+        <serviceTask id="enterTerminalNumber" name="Запрос номера банкомата"
                      activiti:expression="#{bot.requestString(chatId, 'Введите номер банкомата', 'terminalNumber')}"/>
         <sequenceFlow sourceRef="enterTerminalNumber" targetRef="enterTerminalNumberTask"/>
-        <userTask id="enterTerminalNumberTask" name="enterTerminalNumberTask" />
+        <userTask id="enterTerminalNumberTask" name="Ввод номера" />
         <sequenceFlow sourceRef="enterTerminalNumberTask" targetRef="setupTerminalOptions"/>
-        <serviceTask id="setupTerminalOptions" name="setupTerminalOptions"
+        <serviceTask id="setupTerminalOptions" name="Запрос уточнения типа проблемы с банкоматом"
                      activiti:expression="#{bot.sendOptions(execution, chatId, 'Уточните тип проблемы', 'terminalProblem', 'card', 'Забрал карту', 'noMoney', 'Отсутствуют деньги', 'noSaved', 'Деньги не зачислены на карту', 'pause', 'Завис', 'another', 'Другая проблема')}"/>
         <sequenceFlow sourceRef="setupTerminalOptions" targetRef="selectTerminalOptions"/>
-        <userTask id="selectTerminalOptions" name="selectTerminalOptions" />
+        <userTask id="selectTerminalOptions" name="Выбор типа проблемы" />
         <sequenceFlow sourceRef="selectTerminalOptions" targetRef="terminalOptionSelected"/>
-        <exclusiveGateway id="terminalOptionSelected" name="terminalOptionSelected"/>
+        <exclusiveGateway id="terminalOptionSelected"/>
 
-        <sequenceFlow sourceRef="terminalOptionSelected" targetRef="createRequest">
-            <conditionExpression xsi:type="tFormalExpression">#{terminalProblem == "card"}</conditionExpression>
-        </sequenceFlow>
-        <sequenceFlow sourceRef="terminalOptionSelected" targetRef="enterComment">
-            <conditionExpression xsi:type="tFormalExpression">#{terminalProblem == "another"}</conditionExpression>
+        <sequenceFlow sourceRef="terminalOptionSelected" targetRef="setupExitOptions">
+            <conditionExpression xsi:type="tFormalExpression">#{terminalProblem == "card" || terminalProblem == "another" }</conditionExpression>
         </sequenceFlow>
         <sequenceFlow sourceRef="terminalOptionSelected" targetRef="setupTerminalOptions">
             <conditionExpression xsi:type="tFormalExpression">
@@ -68,17 +65,31 @@
             </conditionExpression>
         </sequenceFlow>
 
-        <serviceTask id="enterComment" name="enterComment"
-                     activiti:expression="#{bot.requestString(chatId, 'Введите номер банкомата', 'terminalNumber')}"/>
+
+        <serviceTask id="setupExitOptions" name="Запрос добавления комментария"
+                     activiti:expression="#{bot.sendOptions(execution, chatId, 'Хотите добавить комментарий?', 'hasComment', 'yes', 'Да', 'no', 'Нет')}"/>
+        <sequenceFlow sourceRef="setupExitOptions" targetRef="selectExitOptions"/>
+        <userTask id="selectExitOptions" name="Добавить ли комментарий" />
+        <sequenceFlow sourceRef="selectExitOptions" targetRef="exitOptionSelected"/>
+        <exclusiveGateway id="exitOptionSelected" name="exitOptionSelected"/>
+
+        <sequenceFlow sourceRef="exitOptionSelected" targetRef="enterComment">
+            <conditionExpression xsi:type="tFormalExpression">#{hasComment == "yes"}</conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow sourceRef="exitOptionSelected" targetRef="createRequest">
+            <conditionExpression xsi:type="tFormalExpression">#{hasComment == "no"}</conditionExpression>
+        </sequenceFlow>
+        <serviceTask id="enterComment" name="Запрос ввода комментария"
+                     activiti:expression="#{bot.requestString(chatId, 'Введите комментарий', 'terminalNumber')}"/>
         <sequenceFlow sourceRef="enterComment" targetRef="enterCommentTask"/>
-        <userTask id="enterCommentTask" name="enterCommentTask" />
+        <userTask id="enterCommentTask" name="Ввод комментария" />
         <sequenceFlow sourceRef="enterCommentTask" targetRef="createRequest"/>
 
-        <serviceTask id="createRequest" name="createRequest"
+        <serviceTask id="createRequest" name="Создание заявки"
                      activiti:expression="#{bot.assignRequest(chatId)}"/>
         <sequenceFlow sourceRef="createRequest" targetRef="endHelp"/>
 
-        <endEvent id="endHelp" name="endHelp"/>
+        <endEvent id="endHelp" name="Конец"/>
     </process>
 
 </definitions>
