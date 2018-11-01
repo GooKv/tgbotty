@@ -286,12 +286,11 @@ public class CustomTgRestController {
             switch (command.getName()) {
                 case START_PROCESS_COMMAND:
                     startProcess(chatId, command.getArguments()[0], update);
-                    break;
+                    return null;
                 case HELP_COMMAND:
                     startProcess(chatId, "help", update);
+                    return null;
             }
-            
-            return null;
         }
 
         if(chat.getDialogMode()) {
@@ -320,11 +319,10 @@ public class CustomTgRestController {
     }
 
     private void startProcess(Long chatId, String processSchemeId, Update update) {
-        ProcessInstance processInstance = exampleProcessStarter.startProcess(processSchemeId, update);
-        
         getOrCreateChat(chatId).setDialogMode(false);
         saveChatInfoCustomer(chatId, update, "Пользователь подключился к диалогу");
         
+        ProcessInstance processInstance = exampleProcessStarter.startProcess(processSchemeId, update);
         saveChat(chatId, processInstance.getId(), update);
     }
 
