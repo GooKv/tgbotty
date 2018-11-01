@@ -118,6 +118,10 @@ public class ExampleProcessStarter {
     }
 
     public void deleteProcessInstance(String processInstanceId, String deleteReason) {
-        runtimeService.deleteProcessInstance(processInstanceId, deleteReason);
+        try {
+            runtimeService.deleteProcessInstance(processInstanceId, deleteReason);
+        } catch (Exception ex) {
+            System.err.println(ex.getMessage());
+        }
     }
 }
