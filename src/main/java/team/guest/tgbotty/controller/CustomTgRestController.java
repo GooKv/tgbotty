@@ -114,6 +114,7 @@ public class CustomTgRestController {
     public void startDialogWithHuman(Long chatId) {
         Chat chat = chatRepository.findByChatId(chatId).orElseThrow(() -> new NoChatFoundException(chatId));
         exampleProcessStarter.deleteProcessInstance(chat.getActiveProcessId(), "Supporter interrupt dialog");
+        chat.setActiveProcessId(null);
     }
 
     public String assignRequest(Long chatId) {
