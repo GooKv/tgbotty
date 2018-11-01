@@ -18,6 +18,7 @@ const defaultState = {
   chatName: "",
   messages: [],
   canTalk: false,
+  avatarUrl: null
 };
 
 class ChatWindow extends Component {
@@ -48,7 +49,8 @@ class ChatWindow extends Component {
         this.setState({
           chatName: response.displayName,
           messages: response.messagesDtoList,
-          canTalk: response.canTalk
+          canTalk: response.canTalk,
+          avatarUrl: response.avatarUrl
         })
       )
       .catch(() => this.setState(defaultState));
@@ -60,8 +62,8 @@ class ChatWindow extends Component {
     return (
       <Layout className="chat-layout">
         <ChatHeader header={chatName} />
-        <MessageList messages={messages} />
-        <SendMessagePanel canTalk={canTalk}/>
+        <MessageList messages={messages} avatarUrl={avatarUrl} />
+        <SendMessagePanel canTalk={canTalk} />
       </Layout>
     );
   }

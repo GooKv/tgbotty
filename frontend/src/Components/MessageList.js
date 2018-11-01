@@ -9,7 +9,7 @@ const isUser = user => user.senderType === "CUSTOMER";
 
 class MessageList extends Component {
   render() {
-    const { messages } = this.props;
+    const { messages, avatarUrl } = this.props;
 
     return (
       <Content className="main-content">
@@ -20,7 +20,7 @@ class MessageList extends Component {
             <List.Item>
               <div className={`message ${!isUser(item) && "message-right"}`}>
                 <div className="message-avatar">
-                  <Avatar user={item} />
+                  <Avatar user={item} avatarUrl={avatarUrl} />
                 </div>
                 <div className="message-content">
                   <div className="message-sender">{item.sender || ""}</div>
