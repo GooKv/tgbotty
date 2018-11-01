@@ -6,6 +6,7 @@ public class ChatDto {
 
     private Long id;
     private String displayName;
+    private boolean canTalk;
     private List<MessageDto> messagesDtoList;
     private List<RequestDto> requestDtoList;
     
@@ -43,6 +44,14 @@ public class ChatDto {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public boolean isCanTalk() {
+        return canTalk;
+    }
+
+    public void setCanTalk(boolean canTalk) {
+        this.canTalk = canTalk;
     }
 
     public List<MessageDto> getMessagesDtoList() {

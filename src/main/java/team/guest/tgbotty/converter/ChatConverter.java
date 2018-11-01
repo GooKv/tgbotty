@@ -32,6 +32,7 @@ public class ChatConverter {
     public ChatDto convertChat(Chat chat) {
         ChatDto chatDto = new ChatDto();
         chatDto.setDisplayName(constructDisplayName(chat));
+        chatDto.setCanTalk(chat.getActiveProcessId() == null);
         chatDto.setId(chat.getChatId());
         chatDto.setMessagesDtoList(chat.getChatMessages().stream().map(this::convert).collect(Collectors.toList()));
         chatDto.setRequestDtoList(chat.getChatRequests().stream().map(this::convert).collect(Collectors.toList()));
