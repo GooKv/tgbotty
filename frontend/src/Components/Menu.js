@@ -28,12 +28,26 @@ class Menu extends Component {
   state = defaultState;
 
   componentDidMount() {
+    const getChatPeriodiocally = () => {
+      this.getChats();
+      this.getChatRequestTimerId = setTimeout(getChatPeriodiocally, 1000);
+    };
+
+    this.getChats();
+
+    this.getChatRequestTimerId = setTimeout(getChatPeriodiocally, 1000);
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.getChatRequestTimerId);
+  }
+
+  getChats = () =>
     getChats()
       .then(chatList => {
         this.setState({ chatList });
       })
       .catch(() => this.setState(defaultState));
-  }
 
   render() {
     const { chatList } = this.state;
@@ -51,7 +65,9 @@ class Menu extends Component {
           dataSource={chatList}
           renderItem={chat => (
             <Link to={`/chat/${chat.id}`} key={chat.id}>
-              <List.Item style={menuItemStyle}>{chat.displayName}</List.Item>
+              <List.Item>
+                <div style={menuItemStyle}>{chat.displayName}</div>
+              </List.Item>
             </Link>
           )}
         />
