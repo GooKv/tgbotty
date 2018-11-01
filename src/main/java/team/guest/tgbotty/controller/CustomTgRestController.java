@@ -263,7 +263,7 @@ public class CustomTgRestController {
         return answerCallbackQuery;
     }
 
-    private BotApiMethod handleChatMessage(Update update, Message message) {
+    private BotApiMethod handleChatMessage(Update update, Message message) throws TelegramApiException {
         Long chatId = message.getChatId();
 
         Chat chat = getOrCreateChat(chatId);
@@ -309,9 +309,12 @@ public class CustomTgRestController {
         return null;
     }
 
-    private void startProcess(Long chatId, String processSchemeId, Update update) {
+    private void startProcess(Long chatId, String processSchemeId, Update update) throws TelegramApiException {
         ProcessInstance processInstance = exampleProcessStarter.startProcess(processSchemeId, update);
+        
         getOrCreateChat(chatId).setDialogMode(false);
+        sendMessageFromSupporter(chatId, "Пользователь подключился к диалогу");
+        
         saveChat(chatId, processInstance.getId(), update);
     }
 
