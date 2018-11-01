@@ -2,10 +2,10 @@ package team.guest.tgbotty.dto;
 
 public class ChatViewDto {
 
-    private Integer id;
+    private Long id;
     private String displayName;
 
-    public ChatViewDto(Integer id, String displayName) {
+    public ChatViewDto(Long id, String displayName) {
         this.id = id;
         this.displayName = displayName;
     }
@@ -13,11 +13,11 @@ public class ChatViewDto {
     public ChatViewDto() {
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
