@@ -1,5 +1,6 @@
 package team.guest.tgbotty.converter;
 
+import com.google.common.collect.Iterables;
 import org.springframework.stereotype.Service;
 import team.guest.tgbotty.dto.ChatDto;
 import team.guest.tgbotty.dto.ChatViewDto;
@@ -20,12 +21,18 @@ public class ChatConverter {
         ChatViewDto chatViewDto = new ChatViewDto();
         chatViewDto.setDisplayName(constructDisplayName(chat));
         chatViewDto.setId(chat.getChatId());
+
+        ChatMessage lastMessage = Iterables.getLast(chat.getChatMessages(), null);
+
+        chatViewDto.setLastMessage(convert(lastMessage));
+
         return chatViewDto;
     }
 
     public ChatDto convertChat(Chat chat) {
         ChatDto chatDto = new ChatDto();
         chatDto.setDisplayName(constructDisplayName(chat));
+        chatDto.setCanTalk(chat.getActiveProcessId() == null);
         chatDto.setId(chat.getChatId());
         chatDto.setMessagesDtoList(chat.getChatMessages().stream().map(this::convert).collect(Collectors.toList()));
         chatDto.setRequestDtoList(chat.getChatRequests().stream().map(this::convert).collect(Collectors.toList()));
@@ -45,6 +52,9 @@ public class ChatConverter {
     }
 
     public MessageDto convert(ChatMessage chatMessage) {
+        if (chatMessage == null) {
+            return null;
+        }
         MessageDto messageDto = new MessageDto();
         messageDto.setMessage(chatMessage.getText());
         messageDto.setSender(chatMessage.getSender());
