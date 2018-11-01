@@ -4,10 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import team.guest.tgbotty.bot.BotProcessScriptsFacade;
 import team.guest.tgbotty.dto.ChatDto;
 import team.guest.tgbotty.dto.ChatViewDto;
 import team.guest.tgbotty.dto.RequestDto;
 
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -15,12 +17,17 @@ public class ChatViewController {
 
     private final ChatManager chatManager;
     private final CustomTgRestController customTgRestController;
-
+    
+    private final BotProcessScriptsFacade botProcessScriptsFacade;
+    private HashMap<Long, String> avatars = new HashMap<>();
+    
     @Autowired
     public ChatViewController(CustomTgRestController customTgRestController,
-                              @Qualifier("database") ChatManager chatManager) {
+                              @Qualifier("database") ChatManager chatManager, 
+                              BotProcessScriptsFacade botProcessScriptsFacade) {
         this.customTgRestController = customTgRestController;
         this.chatManager = chatManager;
+        this.botProcessScriptsFacade = botProcessScriptsFacade;
     }
 
     @RequestMapping("view")
@@ -32,7 +39,13 @@ public class ChatViewController {
     @RequestMapping("view/{id}")
     @ResponseBody
     public ChatDto getChatInfo(@PathVariable("id") long id) {
-        return chatManager.getChatInfo(id);
+        ChatDto dto = chatManager.getChatInfo(id);
+        dto.setAvatarUrl(avatars.get(id));
+        return dto;
+    }
+    
+    public void setAvatar(long id, String value) {
+        avatars.put(id, value);
     }
 
     @RequestMapping("view/{id}/startDialog")

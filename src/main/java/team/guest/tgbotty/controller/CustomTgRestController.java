@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.WebhookBot;
+import team.guest.tgbotty.bot.BotProcessScriptsFacade;
 import team.guest.tgbotty.bot.callbacks.BotKeyboardCallback;
 import team.guest.tgbotty.bot.callbacks.BotLocationCallback;
 import team.guest.tgbotty.bot.callbacks.BotMessageCallback;
@@ -46,17 +47,25 @@ public class CustomTgRestController {
 
     //private Map<Pair<Long, Integer>, BotKeyboardCallback> keyboardCallbacks = new HashMap<>();
     private Map<Long, IBotCallback> callbacks = new HashMap<>();
-
+    
+    private final ChatViewController chatViewController;
+    private final BotProcessScriptsFacade botProcessScriptsFacade;
+    
     @Autowired
     public CustomTgRestController(ExampleProcessStarter exampleProcessStarter,
                                   ChatRepository chatRepository,
                                   ChatMessageRepository chatMessageRepository,
-                                  RequestRepository requestRepository, AbsSender sender, WebhookBot... webHookBots) {
+                                  AbsSender sender, 
+                                  ChatViewController chatViewController, 
+                                  BotProcessScriptsFacade botProcessScriptsFacade, 
+                                  RequestRepository requestRepository, WebhookBot... webHookBots) {
         this.exampleProcessStarter = exampleProcessStarter;
         this.chatRepository = chatRepository;
         this.chatMessageRepository = chatMessageRepository;
         this.requestRepository = requestRepository;
         this.sender = sender;
+        this.chatViewController = chatViewController;
+        this.botProcessScriptsFacade = botProcessScriptsFacade;
         registeredBots = Arrays.stream(webHookBots)
                 .collect(Collectors.toMap(WebhookBot::getBotPath, Function.identity()));
     }
@@ -135,7 +144,7 @@ public class CustomTgRestController {
         return this.registeredBots.containsKey(path) ? "Hi there " + path + "!" : "Callback not found for " + path;
     }
 
-    private void saveChat(Long chatId, String processInstanceId) {
+    private void saveChat(Long chatId, String processInstanceId, Update update) {
         Chat chat = getOrCreateChat(chatId);
 
         String activeProcessId = chat.getActiveProcessId();
@@ -143,8 +152,14 @@ public class CustomTgRestController {
             exampleProcessStarter.deleteProcessInstance(activeProcessId, "User start another process");
         }
         chat.setActiveProcessId(processInstanceId);
-
+        
         chatRepository.save(chat);
+        
+        try {
+            chatViewController.setAvatar(chatId, botProcessScriptsFacade.getAvatar(update.getMessage().getFrom()));
+        } catch (Exception e) {
+            LOGGER.error("Error setting avatar", e);
+        }
     }
 
     private void saveChatInfoCustomer(long chatId, Update update, String message) {
@@ -152,7 +167,7 @@ public class CustomTgRestController {
         if (message == null) message = updateMessage.getText();
 
         saveChatInfo(chatId, message, new Timestamp(updateMessage.getDate() * 1000L),
-                     formUserName(updateMessage.getFrom()), SenderType.CUSTOMER);
+                formUserName(updateMessage.getFrom()), SenderType.CUSTOMER);
     }
 
     public String formUserName(User user) {
@@ -258,7 +273,7 @@ public class CustomTgRestController {
 
     private void startProcess(Long chatId, String processSchemeId, Update update) {
         ProcessInstance processInstance = exampleProcessStarter.startProcess(processSchemeId, update);
-        saveChat(chatId, processInstance.getId());
+        saveChat(chatId, processInstance.getId(), update);
     }
 
     private BotApiMethod handleLocation(Update update, Message message) {
