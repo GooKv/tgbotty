@@ -31,9 +31,6 @@ import java.util.Map;
 @Named("bot")
 @Component
 public class BotProcessScriptsFacade {
-
-    @Value("${tg.bot.key}")
-    private String token;
     
     private final CustomTgRestController customTgRestController;
     private final AbsSender sender;
@@ -44,23 +41,6 @@ public class BotProcessScriptsFacade {
         this.sender = sender;
         this.customTgRestController = customTgRestController;
         this.processStarter = processStarter;
-    }
-    
-    public String getAvatar(User user) throws TelegramApiException {
-        GetUserProfilePhotos method = new GetUserProfilePhotos();
-        method.setUserId(user.getId());
-        method.setLimit(1);
-        
-        UserProfilePhotos photos = sender.execute(method);
-        if(photos.getTotalCount() == 0) return null;
-        
-        PhotoSize photo = photos.getPhotos().get(0).get(0);
-        
-        GetFile getFileMethod = new GetFile();
-        getFileMethod.setFileId(photo.getFileId());
-        
-        File file = sender.execute(new GetFile());
-        return file.getFileUrl(token);
     }
     
     public void sendSimpleMessage(Long chatId, String message) throws TelegramApiException {
