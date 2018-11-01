@@ -1,21 +1,8 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { Layout, Icon, message } from "antd";
+import { Layout, Icon, message, List } from "antd";
 
 const { Sider } = Layout;
-
-const MenuItem = ({ chat }) => (
-  <div
-    style={{
-      width: "100%",
-      height: "30px",
-      background: "yellowgreen",
-      margin: "10px 0px"
-    }}
-  >
-    {chat}
-  </div>
-);
 
 const getChats = () =>
   fetch("/view")
@@ -25,6 +12,13 @@ const getChats = () =>
       message.error("Не удалось получить список чатов");
       throw error;
     });
+
+const menuItemStyle = {
+  width: "100%",
+  height: "30px",
+  background: "yellowgreen",
+  margin: "10px 0px"
+};
 
 const defaultState = {
   chatList: []
@@ -52,11 +46,15 @@ class Menu extends Component {
         collapsible
         trigger={<Icon type="menu-fold" theme="outlined" />}
       >
-        {chatList.map(chat => (
-          <Link to={`/chat/${chat.id}`} key={chat.id}>
-            <MenuItem chat={chat.displayName} />
-          </Link>
-        ))}
+        <List
+          itemLayout="horizontal"
+          dataSource={chatList}
+          renderItem={chat => (
+            <Link to={`/chat/${chat.id}`} key={chat.id}>
+              <List.Item style={menuItemStyle}>{chat.displayName}</List.Item>
+            </Link>
+          )}
+        />
       </Sider>
     );
   }

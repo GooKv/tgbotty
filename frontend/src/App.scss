@@ -19,6 +19,18 @@ $main-header-height: 50px;
   padding: 10px 5px;
 }
 
+.send-message-form {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 10px 5px;
+  width: 100%;
+
+  * {
+    margin: 0 10px;
+  }
+}
+
 .chat-layout {
   position: relative;
   height: 100vh;
@@ -51,16 +63,16 @@ $main-header-height: 50px;
     font-weight: bold;
   }
 
-  .message-avatar{
+  .message-avatar {
     margin-right: 16px;
   }
 
-  .message-date{
+  .message-date {
     font-size: 9pt;
     font-style: italic;
   }
 
-  &.message-right  {
+  &.message-right {
     flex-direction: row-reverse;
     text-align: right;
     .message-avatar {
