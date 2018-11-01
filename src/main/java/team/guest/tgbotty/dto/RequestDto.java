@@ -5,6 +5,7 @@ public class RequestDto {
     private Long requestId;
     private String requestNumber;
     private String text;
+    private Long chatId;
 
     public RequestDto(Long requestId, String requestNumber, String text) {
         this.requestId = requestId;
@@ -37,5 +38,13 @@ public class RequestDto {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public Long getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(Long chatId) {
+        this.chatId = chatId;
     }
 }
