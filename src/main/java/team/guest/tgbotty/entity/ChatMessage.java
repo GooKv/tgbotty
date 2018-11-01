@@ -21,7 +21,9 @@ public class ChatMessage {
     @Enumerated(EnumType.STRING)
     @Column(name = "sender_type")
     private SenderType senderType;
-
+    @Column
+    private Boolean isLocation;
+    
     protected ChatMessage() {
     }
 
@@ -85,4 +87,13 @@ public class ChatMessage {
     public void setSender(String sender) {
         this.sender = sender;
     }
+
+    public Boolean getLocation() {
+        return isLocation;
+    }
+
+    public void setLocation(Boolean location) {
+        isLocation = location;
+    }
+    
 }
