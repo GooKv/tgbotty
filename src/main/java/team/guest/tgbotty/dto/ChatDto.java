@@ -4,21 +4,21 @@ import java.util.List;
 
 public class ChatDto {
 
-    private Integer id;
+    private Long id;
     private String displayName;
     private List<MessageDto> messagesDtoList;
 
-    public ChatDto(Integer id, String displayName, List<MessageDto> messagesDtoList) {
+    public ChatDto(Long id, String displayName, List<MessageDto> messagesDtoList) {
         this.id = id;
         this.displayName = displayName;
         this.messagesDtoList = messagesDtoList;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
