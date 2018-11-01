@@ -262,7 +262,10 @@ public class CustomTgRestController {
 
     private BotApiMethod handleChatMessage(Update update, Message message) {
         Long chatId = message.getChatId();
-        saveChatInfoCustomer(chatId, update, null);
+
+        Chat chat = getOrCreateChat(chatId);
+        chatRepository.save(chat);
+        
         if (message.isCommand()) {
             String messageText = update.getMessage().getText();
             Command command = Command.fromMessage(messageText);
@@ -281,12 +284,13 @@ public class CustomTgRestController {
             startProcess(chatId, "help", update);
             return null;
         }
-
+        
         IBotCallback callback = callbacks.get(chatId);
         if (!(callback instanceof BotMessageCallback)) {
             return handleWrongUserAction(chatId);
         }
-
+        
+        saveChatInfoCustomer(chatId, update, null);
         BotMessageCallback messageCallback = (BotMessageCallback) callback;
 
         callbacks.remove(chatId);
