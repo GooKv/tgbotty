@@ -22,7 +22,12 @@ public class ChatConverter {
         chatViewDto.setDisplayName(constructDisplayName(chat));
         chatViewDto.setId(chat.getChatId());
 
-        ChatMessage lastMessage = Iterables.getLast(chat.getChatMessages(), null);
+        ChatMessage lastMessage =
+                Iterables.getLast(chat.getChatMessages()
+                                          .stream()
+                                          .filter(chatMessage -> chatMessage.getSenderType().equals(SenderType.CUSTOMER))
+                                          .collect(Collectors.toList()),
+                                  null);
 
         chatViewDto.setLastMessage(convert(lastMessage));
 
@@ -44,7 +49,7 @@ public class ChatConverter {
                         .stream()
                         .filter(chatMessage -> chatMessage.getSenderType().equals(SenderType.CUSTOMER))
                         .collect(Collectors.toList());
-        if (chatMessages.isEmpty()){
+        if (chatMessages.isEmpty()) {
             return "";
         }
         return chatMessages.get(0).getSender() + " " + chatMessages.get(0).getSendTime().toString();
