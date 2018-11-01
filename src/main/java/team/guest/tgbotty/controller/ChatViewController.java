@@ -17,16 +17,11 @@ public class ChatViewController {
     private final ChatManager chatManager;
     private final CustomTgRestController customTgRestController;
     
-    private final BotProcessScriptsFacade botProcessScriptsFacade;
-    private HashMap<Long, String> avatars = new HashMap<>();
-    
     @Autowired
     public ChatViewController(CustomTgRestController customTgRestController,
-                              @Qualifier("database") ChatManager chatManager, 
-                              BotProcessScriptsFacade botProcessScriptsFacade) {
+                              @Qualifier("database") ChatManager chatManager) {
         this.customTgRestController = customTgRestController;
         this.chatManager = chatManager;
-        this.botProcessScriptsFacade = botProcessScriptsFacade;
     }
 
     @RequestMapping("view")
@@ -39,12 +34,8 @@ public class ChatViewController {
     @ResponseBody
     public ChatDto getChatInfo(@PathVariable("id") long id) {
         ChatDto dto = chatManager.getChatInfo(id);
-        dto.setAvatarUrl(avatars.get(id));
+        dto.setAvatarUrl(customTgRestController.getAvatar(id));
         return dto;
-    }
-    
-    public void setAvatar(long id, String value) {
-        avatars.put(id, value);
     }
 
     @RequestMapping("view/{id}/startDialog")

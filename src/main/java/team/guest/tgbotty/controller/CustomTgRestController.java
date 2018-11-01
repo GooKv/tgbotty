@@ -4,10 +4,13 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
+import org.telegram.telegrambots.meta.api.methods.GetUserProfilePhotos;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.bots.AbsSender;
@@ -47,25 +50,23 @@ public class CustomTgRestController {
 
     //private Map<Pair<Long, Integer>, BotKeyboardCallback> keyboardCallbacks = new HashMap<>();
     private Map<Long, IBotCallback> callbacks = new HashMap<>();
-    
-    private final ChatViewController chatViewController;
-    private final BotProcessScriptsFacade botProcessScriptsFacade;
+
+    private HashMap<Long, String> avatars = new HashMap<>();
+
+    @Value("${tg.bot.key}")
+    private String token;
     
     @Autowired
     public CustomTgRestController(ExampleProcessStarter exampleProcessStarter,
                                   ChatRepository chatRepository,
                                   ChatMessageRepository chatMessageRepository,
-                                  AbsSender sender, 
-                                  ChatViewController chatViewController, 
-                                  BotProcessScriptsFacade botProcessScriptsFacade, 
+                                  AbsSender sender,
                                   RequestRepository requestRepository, WebhookBot... webHookBots) {
         this.exampleProcessStarter = exampleProcessStarter;
         this.chatRepository = chatRepository;
         this.chatMessageRepository = chatMessageRepository;
         this.requestRepository = requestRepository;
         this.sender = sender;
-        this.chatViewController = chatViewController;
-        this.botProcessScriptsFacade = botProcessScriptsFacade;
         registeredBots = Arrays.stream(webHookBots)
                 .collect(Collectors.toMap(WebhookBot::getBotPath, Function.identity()));
     }
@@ -156,10 +157,31 @@ public class CustomTgRestController {
         chatRepository.save(chat);
         
         try {
-            chatViewController.setAvatar(chatId, botProcessScriptsFacade.getAvatar(update.getMessage().getFrom()));
+            avatars.put(chatId, getAvatar(update.getMessage().getFrom()));
         } catch (Exception e) {
             LOGGER.error("Error setting avatar", e);
         }
+    }
+
+    public String getAvatar(User user) throws TelegramApiException {
+        GetUserProfilePhotos method = new GetUserProfilePhotos();
+        method.setUserId(user.getId());
+        method.setLimit(1);
+
+        UserProfilePhotos photos = sender.execute(method);
+        if(photos.getTotalCount() == 0) return null;
+
+        PhotoSize photo = photos.getPhotos().get(0).get(0);
+
+        GetFile getFileMethod = new GetFile();
+        getFileMethod.setFileId(photo.getFileId());
+
+        File file = sender.execute(new GetFile());
+        return file.getFileUrl(token);
+    }
+    
+    public String getAvatar(long id) {
+        return avatars.get(id);
     }
 
     private void saveChatInfoCustomer(long chatId, Update update, String message) {
