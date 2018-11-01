@@ -2,9 +2,7 @@ package team.guest.tgbotty.bot;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.activiti.engine.RuntimeService;
 import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -15,12 +13,15 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import team.guest.tgbotty.bot.callbacks.BotKeyboardCallback;
 import team.guest.tgbotty.controller.CustomTgRestController;
-import team.guest.tgbotty.entity.SenderType;
 import team.guest.tgbotty.controller.ExampleProcessStarter;
+import team.guest.tgbotty.entity.SenderType;
 
 import javax.inject.Named;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Named("bot")
 @Component
@@ -59,15 +60,8 @@ public class BotProcessScriptsFacade {
                 (originalMessage, option) -> {
                     customTgRestController.saveChatInfo(chatId, map.get(option),
                             new Timestamp(System.currentTimeMillis()), null, SenderType.CUSTOMER);
-                    
-                    // TODO: replace with task finish
-                    try {
-                        System.err.println(option);
-                        processStarter.completeUserTask(chatId, ImmutableMap.of(key, option));
-                        sendSimpleMessage(originalMessage.getChatId(), "Received " + option);
-                    } catch (TelegramApiException ignored) {
-                        System.err.println(ignored.getMessage());
-                    }
+
+                    processStarter.completeUserTask(chatId, ImmutableMap.of(key, option));
                 });
     }
     
