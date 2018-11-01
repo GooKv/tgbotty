@@ -1,8 +1,12 @@
 package team.guest.tgbotty.controller;
 
 import com.google.common.collect.ImmutableMap;
+import org.activiti.engine.FormService;
 import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
+import org.activiti.engine.form.FormData;
 import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,12 +20,29 @@ import java.util.Map;
 @Service
 public class ExampleProcessStarter {
     private final RuntimeService runtimeService;
+    private final TaskService taskService;
+    private final FormService formService;
     private final ChatRepository chatRepository;
 
     @Autowired
-    public ExampleProcessStarter(RuntimeService runtimeService, ChatRepository chatRepository) {
+    public ExampleProcessStarter(RuntimeService runtimeService,
+                                 TaskService taskService,
+                                 FormService formService,
+                                 ChatRepository chatRepository) {
         this.runtimeService = runtimeService;
+        this.taskService = taskService;
+        this.formService = formService;
         this.chatRepository = chatRepository;
+    }
+
+    private List<Task> getTaskList() {
+        return taskService.createTaskQuery().taskUnassigned().includeProcessVariables().list();
+    }
+
+    public boolean hasIncompleteProcess(Long chatId) {
+        return getTaskList()
+                .stream()
+                .anyMatch(task -> task.getProcessVariables().get("chatId") == chatId);
     }
 
     @Transactional
@@ -36,7 +57,8 @@ public class ExampleProcessStarter {
     }
 
     private void saveProcessIdInChat(Long chatId, String processId) {
-        Chat chat = chatRepository.findByChatId(chatId).orElse(chatRepository.save(new Chat(chatId)));
+//        Chat chat = chatRepository.findByChatId(chatId).orElse(chatRepository.save(new Chat(chatId)));
+        Chat chat = chatRepository.findByChatId(chatId).orElseThrow(() -> new NoChatFoundException(chatId));
         chat.setActiveProcessId(processId);
         List<String> processList = chat.getProcessList();
         processList.add(processId);
@@ -44,6 +66,22 @@ public class ExampleProcessStarter {
         chatRepository.save(chat);
     }
 
+    public void completeUserTask(Long chatId, Update update) {
+        Task userTask = getTaskList().stream()
+                .filter(task -> task.getProcessVariables().get("chatId") == chatId)
+                .findFirst()
+                .orElseThrow(RuntimeException::new);
+
+        FormData formData = formService.getTaskFormData(userTask.getId());
+        String propertyName = formData.getFormProperties()
+                .stream()
+                .findFirst()
+                .orElseThrow(RuntimeException::new)
+                .getId();
+        Map<String, Object> variables = ImmutableMap.of(propertyName, update.getMessage().getText());
+
+        taskService.complete(userTask.getId(), variables);
+    }
 
     public void startProcess(String processId, Update update) {
         Map<String, Object> env = ImmutableMap.of(

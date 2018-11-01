@@ -146,16 +146,8 @@ public class CustomTgRestController {
 
         BotKeyboardCallback callback = keyboardCallbacks.get(key);
         keyboardCallbacks.remove(key);
-
-        int selectedOption;
-        try {
-            selectedOption = Integer.parseInt(callbackQuery.getData());
-        } catch (NumberFormatException e) {
-            LOGGER.warn("Unable to parse callback data", e);
-            return answerCallbackQuery;
-        }
-
-        callback.answerReceived(originalMessage, selectedOption);
+        
+        callback.answerReceived(originalMessage, callbackQuery.getData());
         
         return answerCallbackQuery;
     }

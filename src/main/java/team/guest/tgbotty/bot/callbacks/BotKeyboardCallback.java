@@ -4,6 +4,6 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 
 public interface BotKeyboardCallback {
     
-    void answerReceived(Message originalMessage, int selectedOption);
+    void answerReceived(Message originalMessage, String selectedOption);
     
 }
