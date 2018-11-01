@@ -117,16 +117,19 @@ public class CustomTgRestController {
     }
 
     private BotApiMethod handleCallbackQueryUpdate(CallbackQuery callbackQuery) {
+        AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+        answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
+        
         Message originalMessage = callbackQuery.getMessage();
         if (originalMessage == null) {
             LOGGER.warn("There are no original message for callback");
-            return null;
+            return answerCallbackQuery;
         }
 
         Pair<Long, Integer> key = Pair.of(originalMessage.getChatId(), originalMessage.getMessageId());
         if (!keyboardCallbacks.containsKey(key)) {
             LOGGER.warn("Received message with no registered callback");
-            return null;
+            return answerCallbackQuery;
         }
 
         BotKeyboardCallback callback = keyboardCallbacks.get(key);
@@ -137,13 +140,11 @@ public class CustomTgRestController {
             selectedOption = Integer.parseInt(callbackQuery.getData());
         } catch (NumberFormatException e) {
             LOGGER.warn("Unable to parse callback data", e);
-            return null;
+            return answerCallbackQuery;
         }
 
         callback.answerReceived(originalMessage, selectedOption);
-
-        AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
-        answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
+        
         return answerCallbackQuery;
     }
 
