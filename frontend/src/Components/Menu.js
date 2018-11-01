@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { Layout, Icon } from "antd";
+import { Layout, Icon, message } from "antd";
 
 const { Sider } = Layout;
 
@@ -17,19 +17,28 @@ const MenuItem = ({ chat }) => (
   </div>
 );
 
-const getChats = () => fetch("/view").then(response => response.json());
+const getChats = () =>
+  fetch("/view")
+    .then(response => response.json())
+    .catch(error => {
+      console.error(error);
+      message.error("Не удалось получить список чатов");
+      throw error;
+    });
+
+const defaultState = {
+  chatList: []
+};
 
 class Menu extends Component {
-  state = {
-    chatList: []
-  };
+  state = defaultState;
 
   componentDidMount() {
     getChats()
       .then(chatList => {
         this.setState({ chatList });
       })
-      .catch(console.error);
+      .catch(() => this.setState(defaultState));
   }
 
   render() {
@@ -43,7 +52,7 @@ class Menu extends Component {
         trigger={<Icon type="menu-fold" theme="outlined" />}
       >
         {chatList.map(chat => (
-          <Link to={`/chat/${chat.id}`} key={chat.id} >
+          <Link to={`/chat/${chat.id}`} key={chat.id}>
             <MenuItem chat={chat.displayName} />
           </Link>
         ))}
