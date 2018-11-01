@@ -95,6 +95,14 @@ public class CustomTgRestController {
         }
     }
 
+    public void sendMessageFromSupporter(String message) {
+
+    }
+
+    public void startDialogWithHuman() {
+
+    }
+
     private String[] getArguments(String messageText, String command) {
         return messageText.substring(command.length()).trim().split(" ");
     }
