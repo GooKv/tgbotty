@@ -21,4 +21,8 @@ public class BotProcessScriptsFacade {
     public void sendSimpleMessage(Long chatId, String message) throws TelegramApiException {
         sender.execute(new SendMessage(chatId, message));
     }
+
+    public void sendOptions(Long chatId) {
+        System.err.println("Sending options to chat " + chatId);
+    }
 }
