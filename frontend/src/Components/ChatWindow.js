@@ -1,9 +1,9 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import { MessageList } from "./MessageList";
 import { ChatHeader } from "./ChatHeader";
 import { SendMessagePanel } from "./SendMessagePanel";
-import { message } from "antd";
+import { message, Layout } from "antd";
 
 const getChatMessages = chatId =>
   fetch(`/view/${chatId}`)
@@ -45,11 +45,11 @@ class ChatWindow extends Component {
     const { chatName, messages } = this.state;
 
     return (
-      <Fragment>
+      <Layout className="chat-layout">
         <ChatHeader header={chatName} />
         <MessageList messages={messages} />
         <SendMessagePanel />
-      </Fragment>
+      </Layout>
     );
   }
 }

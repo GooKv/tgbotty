@@ -62,6 +62,7 @@ public class BotProcessScriptsFacade {
                     
                     // TODO: replace with task finish
                     try {
+                        System.err.println(option);
                         processStarter.completeUserTask(chatId, ImmutableMap.of(key, option));
                         sendSimpleMessage(originalMessage.getChatId(), "Received " + option);
                     } catch (TelegramApiException ignored) {

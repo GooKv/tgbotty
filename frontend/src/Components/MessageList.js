@@ -8,9 +8,7 @@ const userAvatarStyle = { backgroundColor: "#87d068" };
 const employeeAvatarStyle = { backgroundColor: "#87d068" };
 const botAvatarStyle = { backgroundColor: "#4286f4" };
 
-const BotAvatar = () => (
-  <Avatar style={botAvatarStyle} icon="robot" />
-);
+const BotAvatar = () => <Avatar style={botAvatarStyle} icon="robot" />;
 const UserAvatar = () => <Avatar style={userAvatarStyle} icon="user" />;
 const EmployeeAvatar = () => <Avatar style={employeeAvatarStyle}>ВЫ</Avatar>;
 
@@ -39,12 +37,14 @@ class MessageList extends Component {
           dataSource={messages}
           renderItem={item => (
             <List.Item>
-              <List.Item.Meta
-                className={!isUser(item) && "message-right"}
-                avatar={renderAvatar(item)}
-                title={item.sender || ""}
-                description={item.message}
-              />
+              <div className={`message ${!isUser(item) && "message-right"}`}>
+                <div className="message-avatar">{renderAvatar(item)}</div>
+                <div className="message-content">
+                  <div className="message-sender">{item.sender || ""}</div>
+                  <div className="message-text">{item.message}</div>
+                  <div className="message-date">{item.time}</div>
+                </div>
+              </div>
             </List.Item>
           )}
         />
