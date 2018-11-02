@@ -10,17 +10,35 @@ const { Content } = Layout;
 const isUser = user => user.senderType === "CUSTOMER";
 
 class MessageList extends Component {
+  state = {
+    scrollToBottom: true
+  };
+
   componentDidUpdate() {
-    this.wrapperRef.scrollTop = this.wrapperRef.clientHeight
+    if (this.state.scrollToBottom) {
+      this.wrapperRef.scrollTop = this.wrapperRef.scrollHeight;
+    }
   }
 
   getRef = ref => (this.wrapperRef = ReactDOM.findDOMNode(ref));
+
+  onScroll = () => {
+    if (this.wrapperRef.scrollTop === this.wrapperRef.scrollHeight) {
+      this.setState({ scrollToBottom: true });
+    } else {
+      this.setState({ scrollToBottom: false });
+    }
+  };
 
   render() {
     const { messages, avatarUrl } = this.props;
 
     return (
-      <Content className="main-content" ref={this.getRef}>
+      <Content
+        className="main-content"
+        ref={this.getRef}
+        onScroll={this.onScroll}
+      >
         <List
           itemLayout="horizontal"
           dataSource={messages}
