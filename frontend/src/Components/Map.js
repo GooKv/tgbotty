@@ -3,7 +3,7 @@ import React, { Component } from "react";
 export class Map extends Component {
   componentDidMount() {
     const { coordinates } = this.props;
-    const [lat, lon] = coordinates.split(' ');
+    const [lat, lon] = coordinates.split(" ");
     let map;
 
     window.DG.then(function() {
@@ -17,6 +17,14 @@ export class Map extends Component {
   }
 
   render() {
-    return <div id="map$Id$" className="map" />;
+    return (
+      <div
+        id="map$Id$"
+        style={{
+          height: "200px",
+          width: "500px"
+        }}
+      />
+    );
   }
 }
