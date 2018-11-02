@@ -332,8 +332,12 @@ public class CustomTgRestController {
     }
 
     private void startProcess(Long chatId, String processSchemeId, Update update) {
+        String message = "Пользователь подключился к диалогу";
+        if(update.hasMessage() && !update.getMessage().isCommand() && update.getMessage().hasText())
+            message += "(" + update.getMessage().getText() + ")";
+        
         getOrCreateChat(chatId).setDialogMode(false);
-        saveChatInfoCustomer(chatId, update, "Пользователь подключился к диалогу");
+        saveChatInfoCustomer(chatId, update, message);
         
         ProcessInstance processInstance = exampleProcessStarter.startProcess(processSchemeId, update);
         saveChat(chatId, processInstance.getId(), update);
