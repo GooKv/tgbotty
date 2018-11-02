@@ -77,7 +77,6 @@ class Menu extends Component {
         className="main-sider"
         theme="light"
         width={350}
-        collapsible
         trigger={<Icon type="menu-fold" theme="outlined" />}
       >
         <Tabs defaultActiveKey="1">
