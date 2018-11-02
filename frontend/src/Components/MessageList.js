@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import ReactDOM from "react-dom";
 import { withRouter } from "react-router-dom";
 import { Layout, List } from "antd";
 import { Avatar } from "./Avatar";
@@ -10,35 +9,11 @@ const { Content } = Layout;
 const isUser = user => user.senderType === "CUSTOMER";
 
 class MessageList extends Component {
-  state = {
-    scrollToBottom: true
-  };
-
-  componentDidUpdate() {
-    if (this.state.scrollToBottom) {
-      this.wrapperRef.scrollTop = this.wrapperRef.scrollHeight;
-    }
-  }
-
-  getRef = ref => (this.wrapperRef = ReactDOM.findDOMNode(ref));
-
-  onScroll = () => {
-    if (this.wrapperRef.scrollTop === this.wrapperRef.scrollHeight) {
-      this.setState({ scrollToBottom: true });
-    } else {
-      this.setState({ scrollToBottom: false });
-    }
-  };
-
   render() {
     const { messages, avatarUrl } = this.props;
 
     return (
-      <Content
-        className="main-content"
-        ref={this.getRef}
-        onScroll={this.onScroll}
-      >
+      <Content className="main-content">
         <List
           itemLayout="horizontal"
           dataSource={messages}
