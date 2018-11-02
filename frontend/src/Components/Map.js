@@ -17,6 +17,6 @@ export class Map extends Component {
   }
 
   render() {
-    return <div id="map$Id$" style={{ height: "200px" }} />;
+    return <div id="map$Id$" className="map" />;
   }
 }
