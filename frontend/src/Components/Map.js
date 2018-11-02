@@ -3,7 +3,7 @@ import React, { Component } from "react";
 export class Map extends Component {
   componentDidMount() {
     const { coordinates } = this.props;
-    const [lat, lon] = coordinates.split();
+    const [lat, lon] = coordinates.split(' ');
     let map;
 
     window.DG.then(function() {

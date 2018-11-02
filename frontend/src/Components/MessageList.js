@@ -11,7 +11,7 @@ const isUser = user => user.senderType === "CUSTOMER";
 
 class MessageList extends Component {
   componentDidUpdate() {
-    window.scrollTo(0, this.wrapperRef.scrollHeight);
+    this.wrapperRef.scrollTop = this.wrapperRef.clientHeight
   }
 
   getRef = ref => (this.wrapperRef = ReactDOM.findDOMNode(ref));
